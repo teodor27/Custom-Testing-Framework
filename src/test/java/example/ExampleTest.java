@@ -18,20 +18,20 @@ public class ExampleTest extends BaseTestClass {
     @Title("Go to mail")
     @Test()
     public void test1RedirectToMail() {
-        exampleSteps.clickMail();
+        exampleSteps.selectSearchBox();
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        exampleSteps.checkMailRedirect();
+//        exampleSteps.checkMailRedirect();
     }
 
     @Title("Go to Sign In Page")
     @Test
     public void test2Login() {
-        exampleSteps.clickMail();
-        exampleSteps.clickSignInPageButton();
+        exampleSteps.selectSearchBox();
+//        exampleSteps.clickSignInPageButton();
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {

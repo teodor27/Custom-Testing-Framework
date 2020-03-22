@@ -3,7 +3,6 @@ package util;
 import net.thucydides.core.annotations.Managed;
 import org.junit.After;
 import org.junit.Before;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 
@@ -14,9 +13,8 @@ public class BaseTestClass {
 
     @Before()
     public void openBrowser() {
-        webDriver.navigate().to("https://ro.yahoo.com");
+        webDriver.navigate().to("https://emag.ro");
         webDriver.manage().window().maximize();
-        webDriver.findElement(By.cssSelector(".btn.primary")).click(); //close popup
     }
 
     @After()

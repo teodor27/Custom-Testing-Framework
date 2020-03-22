@@ -1,8 +1,8 @@
 package pages;
 
-import io.appium.java_client.MobileBy;
 import net.thucydides.core.pages.PageObject;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 
@@ -38,6 +38,10 @@ public class BasePage extends PageObject {
 
     protected WebElement waitUntilPageIsLoadedById(String id) {
         return waitUntilPageIsLoadedByElement(By.id(id), 20, 200);
+    }
+
+    protected WebElement waitUntilPageIsLoadedByCss(String css) {
+        return waitUntilPageIsLoadedByElement(By.cssSelector(css), 20, 200);
     }
 
     protected WebElement longWaitUntilPageIsLoadedByIdAndClickable(String id) {
@@ -129,17 +133,4 @@ public class BasePage extends PageObject {
         return wait;
     }
 
-    public void clickMail() {
-        findElementByCssSelector("#uh-mail-link").click();
-    }
-
-    public Boolean isPreSignInPageDisplayed() {
-        waitUntilPageIsLoadedById("signin-main");
-        return findElementByCssSelector("#signin-main").isDisplayed();
-    }
-
-    public void clickSignIn() {
-        waitUntilPageIsLoadedById("signin-main");
-        findElementByCssSelector(".fuji-button-link.fuji-button-primary").click();
-    }
 }
