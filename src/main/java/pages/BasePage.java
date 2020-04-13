@@ -2,14 +2,19 @@ package pages;
 
 import net.thucydides.core.pages.PageObject;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.time.Duration.ofMillis;
@@ -42,6 +47,28 @@ public class BasePage extends PageObject {
 
     protected WebElement waitUntilPageIsLoadedByCss(String css) {
         return waitUntilPageIsLoadedByElement(By.cssSelector(css), 20, 200);
+    }
+
+
+    // wait for string to be
+    public void waitForElementTextEqualsString(WebElement element, String expectedString, int specifiedTimeout) {
+        FluentWait wait = new WebDriverWait(getDriver(), specifiedTimeout);
+        ExpectedCondition<Boolean> elementTextEqualsString = arg0 -> element.getText().equals(expectedString);
+        wait.until(elementTextEqualsString);
+        wait.ignoring(StaleElementReferenceException.class);
+    }
+
+    public void waitUntilUrlContains(String text, int specifiedTimeout) {
+        FluentWait wait = globalFluentWait(specifiedTimeout, 200);
+        wait.until(ExpectedConditions.urlContains(text));
+    }
+
+    public void waitUntilPageIsFullyLoaded(int timeOut) {
+        FluentWait wait = globalFluentWait(timeOut, 100);
+        JavascriptExecutor js = (JavascriptExecutor) getDriver();
+        String status = String.valueOf(js.executeScript("return document.readyState"));
+        ExpectedCondition<Boolean> textEqualsString = arg0 -> status.equals("complete");
+        wait.until(textEqualsString);
     }
 
     protected WebElement longWaitUntilPageIsLoadedByIdAndClickable(String id) {
@@ -110,7 +137,6 @@ public class BasePage extends PageObject {
     }
 
 
-
     private WebElement waitUntilPageIsLoadedByElementAndClickable(By locator, int timeOut, int poolingEvery) {
 
         FluentWait wait = globalFluentWait(timeOut, poolingEvery);
@@ -119,7 +145,6 @@ public class BasePage extends PageObject {
                 ExpectedConditions.presenceOfAllElementsLocatedBy(locator),
                 ExpectedConditions.elementToBeClickable(locator)));
 
-        getDriver().getPageSource();
         return getDriver().findElement(locator);
     }
 
@@ -128,9 +153,11 @@ public class BasePage extends PageObject {
         FluentWait wait = new FluentWait<>(getDriver())
                 .withTimeout(Duration.ofSeconds(timeOut))
                 .pollingEvery(ofMillis(poolingEvery))
-                .ignoring(NoSuchElementException.class);
-
+                .ignoring(NoSuchElementException.class)
+                .ignoring(StaleElementReferenceException.class);
         return wait;
     }
 
+    public void navigateToPage(String url) {
+    }
 }
