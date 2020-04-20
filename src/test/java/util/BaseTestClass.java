@@ -7,7 +7,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.WebDriver;
 
-
 public class BaseTestClass extends ScenarioSteps {
 
     @Managed(driver = "chrome", uniqueSession = true)
@@ -24,7 +23,6 @@ public class BaseTestClass extends ScenarioSteps {
 //        options.addArguments("headless");
 
 //        webDriver = new ChromeDriver(options);
-        webDriver.manage().window().maximize();
     }
 
 //    @After()

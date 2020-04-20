@@ -19,19 +19,25 @@ public class MainTestClass extends BaseTestClass {
     @Test()
     public void test1_SearchForItem() {
         webDriver.navigate().to("https://emag.ro");
+//        mainEmagSteps.closeCookiePrompt();
         //TODO add login
         mainEmagSteps.selectSearchBox();
         //TODO implement inpunt collection form file
-        mainEmagSteps.searchForItem("Masina de spalat");
+        mainEmagSteps.searchForItem("Masina de spalat rufe");
         //TODO make check that the search has relevant results
         mainEmagSteps.checkItemsAreFound();
+
+        mainEmagSteps.closeCookiePrompt();
 
     }
 
     @Title("Filter Reviews and collect data")
     @Test()
     public void test2_FilterAndCollect() {
+        mainEmagSteps.filterUnratedItems();
         mainEmagSteps.sortByNumberOfReviews();
+        mainEmagSteps.collectInformation();
+        mainEmagSteps.selectTopRatedItems();
 
     }
 

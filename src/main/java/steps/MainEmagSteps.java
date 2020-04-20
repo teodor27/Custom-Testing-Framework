@@ -6,7 +6,6 @@ import org.assertj.core.api.SoftAssertions;
 import pages.MainEmagPage;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.SoftAssertions.*;
 
 public class MainEmagSteps extends ScenarioSteps {
     MainEmagPage mainEmagPage;
@@ -31,10 +30,30 @@ public class MainEmagSteps extends ScenarioSteps {
 
     @Step
     public void sortByNumberOfReviews() {
-        softAssertions = new SoftAssertions();
         mainEmagPage.clickSortButton();
         mainEmagPage.sortByReviewNumber();
-        softAssertions.assertThat(mainEmagPage.checkPageIsSortedByNumberOfReviews()).isTrue();
-        softAssertions.assertAll();
+    }
+
+    @Step
+    public void closeCookiePrompt() {
+        mainEmagPage.closeCookiePrompt();
+        assertThat(mainEmagPage.isCookiePromptClosed()).isTrue();
+    }
+
+    @Step
+    public void collectInformation() {
+        mainEmagPage.collectInformation();
+    }
+
+    @Step
+    public void selectTopRatedItems() {
+        mainEmagPage.displayItems();
+//        mainEmagPage.collectItemsAboveAverage();
+
+    }
+
+    @Step
+    public void filterUnratedItems() {
+        mainEmagPage.pressRatingFilter();
     }
 }

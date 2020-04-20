@@ -14,7 +14,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.time.Duration.ofMillis;
@@ -71,13 +70,18 @@ public class BasePage extends PageObject {
         wait.until(textEqualsString);
     }
 
+    public void waitUntilElementIsInvisible(String css, int specifiedTimeout) {
+        FluentWait wait = globalFluentWait(5, 20);
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector(css)));
+    }
+
     protected WebElement longWaitUntilPageIsLoadedByIdAndClickable(String id) {
 
         return waitUntilPageIsLoadedByElementAndClickable(By.id(id), 100, 400);
     }
 
-    protected WebElement shortWaitUntilPageIsLoadedByIdAndClickable(String id) {
-        return waitUntilPageIsLoadedByElementAndClickable(By.id(id), 20, 400);
+    protected WebElement shortWaitUntilPageIsLoadedByIdAndClickable(String css) {
+        return waitUntilPageIsLoadedByElementAndClickable(By.cssSelector(css), 20, 400);
 
     }
 
@@ -122,7 +126,6 @@ public class BasePage extends PageObject {
 
         FluentWait wait = globalFluentWait(timeOut, poolingEvery);
         wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
-
         return getDriver().findElement(locator);
 
     }
