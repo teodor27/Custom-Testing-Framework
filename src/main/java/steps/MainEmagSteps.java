@@ -47,13 +47,29 @@ public class MainEmagSteps extends ScenarioSteps {
 
     @Step
     public void selectTopRatedItems() {
+        mainEmagPage.filterDuplicateItems();
+        mainEmagPage.filterLowNumberItems();
+        mainEmagPage.filterLowRatedItems();
+        mainEmagPage.filterNonPopularItems();
+//        mainEmagPage.filterOverPricedItems();
         mainEmagPage.displayItems();
-//        mainEmagPage.collectItemsAboveAverage();
 
     }
 
     @Step
-    public void filterUnratedItems() {
+    public void applyLeftSidebarRatingFilter() {
         mainEmagPage.pressRatingFilter();
     }
+
+    @Step
+    public void collectPopularItemInfo() {
+        mainEmagPage.collectPopularItemInfo();
+    }
+
+    @Step
+    public void sortByMostPopular() {
+        mainEmagPage.clickSortButton();
+        mainEmagPage.sortByMostPopular();
+    }
+
 }
