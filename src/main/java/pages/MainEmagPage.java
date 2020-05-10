@@ -1,6 +1,7 @@
 package pages;
 
 import model.Item;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -16,7 +17,7 @@ public class MainEmagPage extends BasePage {
     private static final String SEARCH_RESULTS_CARDS_CSS = ".card-item.js-product-data";
     private static final String FILTER_BUTTON_CSS = "div:nth-child(2) > div.sort-control-btn-dropdown.hidden-xs > button";
     private static final String FILTER_BUTTON_SPAN_CSS = "div:nth-child(2) > div.sort-control-btn-dropdown.hidden-xs > button > .sort-control-btn-option";
-    private static final String NR_REVIEWURI_CSS = "[data-sort-id='reviews']";
+    private static final String NUMBER_OF_REVIEWS_CSS = "[data-sort-id='reviews']";
     private static final String POPULARITY_CSS = "[data-sort-id='new_popularity']";
     private static final String ITEM_CARDS_REVIEW_CSS = ".star-rating-text  .hidden-xs";
     private static final String ITEM_STAR_RATING_CSS = ".js-product-url .star-rating";
@@ -29,10 +30,8 @@ public class MainEmagPage extends BasePage {
     private static final String SEO_PAGE_BODY_ID = "#seo-links-body";
     private static final String PRELOADER_CSS = "#card_grid .preloader";
     private static final String RATING_FILTER_CSS = "[data-option-id='1-5']";
+    private static final String TOTAL_RATED_PRODUCTS_CSS = ".ph-label";
 
-
-    private List<Item> itemlist = new ArrayList<>();
-    private List<Item> popularItemsList = new ArrayList<>();
 
     public void clickSearchBox() {
         this.findElementById(SEARCH_BOX_ID).click();
@@ -44,6 +43,7 @@ public class MainEmagPage extends BasePage {
     }
 
     public void typeIntoSearchBox(String input) {
+        this.input = input;
         this.findElementById(SEARCH_BOX_ID).sendKeys(input);
     }
 
@@ -60,8 +60,8 @@ public class MainEmagPage extends BasePage {
         this.findElementByCssSelector(FILTER_BUTTON_CSS).click();
     }
 
-    public void sortByReviewNumber() {
-        this.findElementByCssSelector(NR_REVIEWURI_CSS).click();
+    public void sortByNumberOfReviews() {
+        this.findElementByCssSelector(NUMBER_OF_REVIEWS_CSS).click();
         this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
         this.waitUntilElementIsInvisible((PRELOADER_CSS), 10);
 
@@ -137,6 +137,7 @@ public class MainEmagPage extends BasePage {
 
                 Item item = new Item()
                         .setName(titleElement.getAttribute("title"))
+                        .setUrl(titleElement.getAttribute("href"))
                         .setNumberOfReviews(Integer.parseInt(numberElement.getText().split(" ")[0]))
                         .setRating(Double.parseDouble(ratingElement.getAttribute("class").split(" ")[2].split("-")[1]))
                         .setPrice((correctedPrice));
@@ -144,8 +145,7 @@ public class MainEmagPage extends BasePage {
                 if (item.getNumberOfReviews() == 0) {
                     break;
                 }
-
-                itemlist.add(item);
+                itemList.add(item);
             }
 
             if (isNextButtonEnabled()) {
@@ -154,85 +154,91 @@ public class MainEmagPage extends BasePage {
                 isCollecting = false;
             }
         }
-
     }
 
     public void displayItems() {
-        for (Item item : itemlist) {
+        for (Item item : itemList) {
             System.out.println(item.toString());
         }
     }
 
     public void filterLowNumberItems() {
         int sum = 0;
-        for (Item item : itemlist) {
+        for (Item item : itemList) {
             sum += item.getNumberOfReviews();
         }
 
-        double average = sum / itemlist.size();
+        double average = sum / itemList.size();
         System.out.println("MEDIA ESTE Number of ratings = " + average);
 
-        for (int i = 0; i < itemlist.size(); i++) {
-            if (itemlist.get(i).getNumberOfReviews() < average) {
-                itemlist.remove(i);
+        for (int i = 0; i < itemList.size(); i++) {
+            if (itemList.get(i).getNumberOfReviews() < average) {
+                itemList.remove(i);
                 i--;
             }
         }
 
-        System.out.println("DIMENSIUNE LISTA dupa nr filter: " + itemlist.size());
+        System.out.println("DIMENSIUNE LISTA dupa nr filter: " + itemList.size());
 
     }
 
     public void filterLowRatedItems() {
         double sum = 0;
-        for (Item item : itemlist) {
+        for (Item item : itemList) {
             sum += item.getRating();
         }
 
-        double average = sum / itemlist.size();
+        double average = sum / itemList.size();
         System.out.println("MEDIA ESTE Ratings = " + average);
 
-        for (int i = 0; i < itemlist.size(); i++) {
-            if (itemlist.get(i).getRating() < average) {
-                itemlist.remove(i);
+        for (int i = 0; i < itemList.size(); i++) {
+            if (itemList.get(i).getRating() < average) {
+                itemList.remove(i);
                 i--;
             }
         }
 
-        System.out.println("DIMENSIUNE LISTA dupa rating filter: " + itemlist.size());
+        System.out.println("DIMENSIUNE LISTA dupa rating filter: " + itemList.size());
     }
 
-    public void filterOverPricedItems() {
+    public void filterOverPricedItems(double budget) {
         double sum = 0;
-        for (Item item : itemlist) {
+        double referencePrice;
+        for (Item item : itemList) {
             sum += item.getPrice();
         }
+//
+        double average = sum / itemList.size();
+        System.out.println("Buget = " + budget);
+        System.out.println("AVERAGE PRICE = " + average);
 
-        double average = sum / itemlist.size();
-        System.out.println("MEDIA ESTE Price = " + average);
+        if (budget > average) {
+            referencePrice = budget + budget - average;
+        } else {
+            referencePrice = budget + average - budget;
+        }
 
-        for (int i = 0; i < itemlist.size(); i++) {
-            if (itemlist.get(i).getPrice() > average) {
-                itemlist.remove(i);
+        for (int i = 0; i < itemList.size(); i++) {
+            if (itemList.get(i).getPrice() > referencePrice) {
+                itemList.remove(i);
                 i--;
             }
         }
 
-        System.out.println("DIMENSIUNE LISTA dupa price filter: " + itemlist.size());
+        System.out.println("DIMENSIUNE LISTA dupa price filter: " + itemList.size());
     }
 
     public void filterDuplicateItems() {
-//        Comparator<Item> compareByName = Comparator.comparing(Item::getName);
-//        Collections.sort(itemlist, compareByName);
-
-        for (int i = 0; i < itemlist.size() - 1; i++) {
-            if (itemlist.get(i).getName().split(",")[0].contentEquals(itemlist.get(i + 1).getName().split(",")[0]) &&
-                    itemlist.get(i).getNumberOfReviews() == itemlist.get(i + 1).getNumberOfReviews() &&
-                    itemlist.get(i).getRating() == itemlist.get(i + 1).getRating()) {
-                itemlist.remove(i);
+        System.out.println("LIST BEFORE DUPLICATE FILTER: " + itemList.size());
+        for (int i = 0; i < itemList.size() - 1; i++) {
+            if (itemList.get(i).getName().split(",")[0].contentEquals(itemList.get(i + 1).getName().split(",")[0]) &&
+                    itemList.get(i).getNumberOfReviews() == itemList.get(i + 1).getNumberOfReviews() &&
+                    itemList.get(i).getRating() == itemList.get(i + 1).getRating()) {
+                itemList.remove(i);
                 i--;
             }
         }
+        System.out.println("LIST AFTER DUPLICATE FILTER: " + itemList.size());
     }
 
     public void pressRatingFilter() {
@@ -243,47 +249,29 @@ public class MainEmagPage extends BasePage {
         this.waitUntilElementIsInvisible((PRELOADER_CSS), 10);
     }
 
-    public void collectPopularItemInfo() {
-        int numberOfItemsPerPage = this.findElementsByCssSelector(ITEM_TITLE_CSS).size();
-        for (int i = 1; i <= numberOfItemsPerPage; i++) {
-            WebElement numberElement = findElementByCssSelector("[data-position='" + i + "'] " + ITEM_STAR_NUMBER_CSS);
-            WebElement ratingElement = findElementByCssSelector("[data-position='" + i + "'] " + ITEM_STAR_RATING_CSS);
-            WebElement titleElement = findElementByCssSelector("[data-position='" + i + "'] " + ITEM_TITLE_CSS);
-            WebElement priceElement = findElementByCssSelector("[data-position='" + i + "'] " + ITEM_PRICE_CSS);
+    private int getNumberOfRatedProducts() {
+        String ratedElementsRawText = this.findElementByCssSelector(TOTAL_RATED_PRODUCTS_CSS).getText();
+        return Integer.parseInt(StringUtils.substringBetween(ratedElementsRawText, "(", ")"));
+    }
 
-            String priceText = priceElement.getText().split(" ")[0];
-            double correctedPrice;
+//    public void filterNonPopularItems() {
+//        System.out.println("List size before popular filter: " + itemList.size());
+//        itemList.subList(0, itemList.size() / 2);
+//        System.out.println("List size after popular filter: " + itemList.size());
+//    }
 
-            if (priceText.contains(".")) {
-                correctedPrice = Double.parseDouble(priceText) * 1000;
-            } else {
-                correctedPrice = Double.parseDouble(priceText) / 100;
-            }
-
-            Item item = new Item()
-                    .setName(titleElement.getAttribute("title"))
-                    .setNumberOfReviews(Integer.parseInt(numberElement.getText().split(" ")[0]))
-                    .setRating(Double.parseDouble(ratingElement.getAttribute("class").split(" ")[2].split("-")[1]))
-                    .setPrice((correctedPrice));
-
-            if (item.getNumberOfReviews() == 0) {
-                break;
-            }
-            popularItemsList.add(item);
-
+    public void sortByMostPopular() {
+        if (findElementByCssSelector(FILTER_BUTTON_CSS).getText().contains("Relevant")) {
+            this.findElementByCssSelector(POPULARITY_CSS).click();
+            this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
+            this.waitUntilElementIsInvisible((PRELOADER_CSS), 2);
         }
     }
 
-    public void filterNonPopularItems() {
-        System.out.println("List size before popular filter: " + itemlist.size());
-        itemlist.retainAll(popularItemsList);
-        System.out.println("List size after popular filter: " + itemlist.size());
-    }
-
-    public void sortByMostPopular() {
-        this.findElementByCssSelector(POPULARITY_CSS).click();
-        this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
-        this.waitUntilElementIsInvisible((PRELOADER_CSS), 2);
+    public void reduceBestProductList() {
+        int size = itemList.size();
+        if ( size > 10 )
+            itemList.subList(10, size).clear();
     }
 
 }

@@ -1,5 +1,6 @@
 package pages;
 
+import model.Item;
 import net.thucydides.core.pages.PageObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -19,6 +20,26 @@ import java.util.stream.Collectors;
 import static java.time.Duration.ofMillis;
 
 public class BasePage extends PageObject {
+
+    protected static List<Item> itemList = new ArrayList<>();
+    protected String input;
+
+    protected void sleep(int miliseconds) {
+        try {
+            Thread.sleep(miliseconds);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void switchToTab(int tabIndex) {
+        ArrayList<String> tabs = new ArrayList<String>(getDriver().getWindowHandles());
+        getDriver().switchTo().window(tabs.get(tabIndex));
+    }
+
+    public void closeCurrentTab() {
+        getDriver().close();
+    }
 
     protected WebElement findElementById(String id) {
         return getDriver().findElement(By.id(id));
@@ -161,6 +182,4 @@ public class BasePage extends PageObject {
         return wait;
     }
 
-    public void navigateToPage(String url) {
-    }
 }

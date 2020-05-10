@@ -8,6 +8,9 @@ public class Item {
     private double rating;
     private double price;
     private int selectionPoints;
+    private String brand;
+    private String productCode;
+    private String url;
 
     public Item() {
         this.selectionPoints = 0;
@@ -59,6 +62,33 @@ public class Item {
         return this;
     }
 
+    public String getBrand() {
+        return brand;
+    }
+
+    public Item setBrand(String brand) {
+        this.brand = brand;
+        return this;
+    }
+
+    public String getProductCode() {
+        return productCode;
+    }
+
+    public Item setProductCode(String productCode) {
+        this.productCode = productCode;
+        return this;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public Item setUrl(String url) {
+        this.url = url;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -83,6 +113,9 @@ public class Item {
                 ", rating=" + rating +
                 ", price=" + price +
                 ", selectionPoints=" + selectionPoints +
+                ", brand='" + brand + '\'' +
+                ", productCode='" + productCode + '\'' +
+                ", url='" + url + '\'' +
                 '}';
     }
 }

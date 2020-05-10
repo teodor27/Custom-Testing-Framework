@@ -31,7 +31,7 @@ public class MainEmagSteps extends ScenarioSteps {
     @Step
     public void sortByNumberOfReviews() {
         mainEmagPage.clickSortButton();
-        mainEmagPage.sortByReviewNumber();
+        mainEmagPage.sortByNumberOfReviews();
     }
 
     @Step
@@ -46,13 +46,13 @@ public class MainEmagSteps extends ScenarioSteps {
     }
 
     @Step
-    public void selectTopRatedItems() {
+    public void filterItemsBelowAverage() {
         mainEmagPage.filterDuplicateItems();
         mainEmagPage.filterLowNumberItems();
         mainEmagPage.filterLowRatedItems();
-        mainEmagPage.filterNonPopularItems();
+//        mainEmagPage.filterNonPopularItems();
 //        mainEmagPage.filterOverPricedItems();
-        mainEmagPage.displayItems();
+//        mainEmagPage.displayItems();
 
     }
 
@@ -61,10 +61,10 @@ public class MainEmagSteps extends ScenarioSteps {
         mainEmagPage.pressRatingFilter();
     }
 
-    @Step
-    public void collectPopularItemInfo() {
-        mainEmagPage.collectPopularItemInfo();
-    }
+//    @Step
+//    public void collectPopularItemInfo() {
+//        mainEmagPage.collectPopularItemInfo();
+//    }
 
     @Step
     public void sortByMostPopular() {
@@ -72,4 +72,15 @@ public class MainEmagSteps extends ScenarioSteps {
         mainEmagPage.sortByMostPopular();
     }
 
+    @Step
+    public void filterByBudget(double budget) {
+        mainEmagPage.filterOverPricedItems(budget);
+//        mainEmagPage.displayItems();
+    }
+
+    @Step
+    public void narrowDownBestProducts() {
+        mainEmagPage.reduceBestProductList();
+        mainEmagPage.displayItems();
+    }
 }
