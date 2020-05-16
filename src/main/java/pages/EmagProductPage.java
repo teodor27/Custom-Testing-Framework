@@ -10,7 +10,7 @@ public class EmagProductPage extends BasePage {
 
 
     public void openNewTab() {
-        String link = "window.open('https://www.emag.ro');";
+        String link = "window.open('https://www.emag.ro/homepage');";
         ((JavascriptExecutor) getDriver()).executeScript(link);
     }
 

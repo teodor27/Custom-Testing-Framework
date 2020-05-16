@@ -30,7 +30,7 @@ public class MainTestClass extends BaseTestClass {
     @Title("Search for item in Emag Main Page")
     @Test()
     public void test1_SearchForItem() {
-        webDriver.navigate().to("https://emag.ro");
+        webDriver.navigate().to("https://www.emag.ro/homepage");
         //TODO add login
         mainEmagSteps.selectSearchBox();
         //TODO implement inpunt collection form file
@@ -49,7 +49,7 @@ public class MainTestClass extends BaseTestClass {
         mainEmagSteps.sortByNumberOfReviews();
         mainEmagSteps.collectInformation();
         mainEmagSteps.filterItemsBelowAverage();
-        mainEmagSteps.filterByBudget(300);
+        mainEmagSteps.filterByBudget(2000);
         mainEmagSteps.narrowDownBestProducts();
         emagProductSteps.collectProductInformation();
         baseSteps.closeTab();
@@ -67,7 +67,6 @@ public class MainTestClass extends BaseTestClass {
     @Title("Filter Reviews and collect data")
     @Test()
     public void test3_CheckCompariReviews() {
-        ///TO CONTINUE FROM HERE
         compariSteps.openNewCompariTab();
         compariSteps.collectRatingInformation();
         baseSteps.closeTab();

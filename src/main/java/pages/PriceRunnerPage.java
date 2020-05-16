@@ -35,6 +35,17 @@ public class PriceRunnerPage extends BasePage {
                 String ratingText = this.findElementByXpath(REVIEW_XPATH).getText();
                 double rating = Double.parseDouble(ratingText) * 1000;
                 item.setSelectionPoints((int) rating);
+//            } else {
+//                System.out.println("Trying by first item found....");
+//                if (isFirstItemFoundByBrand(item.getBrand())) {
+//                    String brandName = item.getBrand();
+//                    String capitalizedBrandName = brandName.substring(0, 1).toUpperCase() + brandName.substring(1).toLowerCase();
+//                    this.findElementByXpath("(//h2/a[contains(@title,'" + capitalizedBrandName + "')])[1]").click();
+//                    String ratingText = this.findElementByCssSelector(REVIEW_CSS).getAttribute("title");
+//                    System.out.println("Star rating FIRST FOUND = " + ratingText);
+//                    double rating = Double.parseDouble(ratingText) * 1000;
+//                    item.setSelectionPoints((int) rating);
+//                }
             }
             if (item.getSelectionPoints() != 0)
                 System.out.println("CALCULATED SELECTION POINT FOR " + item.getName() + " " + item.getSelectionPoints());
