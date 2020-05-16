@@ -8,9 +8,8 @@ import org.openqa.selenium.WebElement;
 
 public class PriceRunnerPage extends BasePage {
 
-    private static final String PRICE_RUNNER_PAGE_TITLE = "PriceRunner UK - Compare Prices and find the best deals";
     private static final String SEARCH_BOX_ID = "search";
-    private static final String REVIEW_XPATH = "//*[@id='content-below-header']/div/div/div[4]/div/div/div[1]/div/a/div/div/div[2]/span/div/div[2]/span";
+    private static final String REVIEW_CSS = "a > div > div > div > span > div > div > span";
 
     public void openNewTab() {
         String link = "window.open('https://www.pricerunner.com/t/1/Sound-and-Vision');";
@@ -32,24 +31,32 @@ public class PriceRunnerPage extends BasePage {
             searchBox.sendKeys(Keys.ENTER);
             this.sleep(800);
             if (isItemFound(item.getProductCode())) {
-                String ratingText = this.findElementByXpath(REVIEW_XPATH).getText();
+                String ratingText = this.findElementByCssSelector(REVIEW_CSS).getText();
                 double rating = Double.parseDouble(ratingText) * 1000;
-                item.setSelectionPoints((int) rating);
-//            } else {
-//                System.out.println("Trying by first item found....");
-//                if (isFirstItemFoundByBrand(item.getBrand())) {
-//                    String brandName = item.getBrand();
-//                    String capitalizedBrandName = brandName.substring(0, 1).toUpperCase() + brandName.substring(1).toLowerCase();
-//                    this.findElementByXpath("(//h2/a[contains(@title,'" + capitalizedBrandName + "')])[1]").click();
-//                    String ratingText = this.findElementByCssSelector(REVIEW_CSS).getAttribute("title");
-//                    System.out.println("Star rating FIRST FOUND = " + ratingText);
-//                    double rating = Double.parseDouble(ratingText) * 1000;
-//                    item.setSelectionPoints((int) rating);
-//                }
+                item.incrementSelectionPoints((int) rating);
+            } else {
+                System.out.println("Trying by first item found....");
+                if (isFirstItemFoundByBrand(item.getBrand()) && isReviewDisplayed()) {
+                    String ratingText = this.findElementByCssSelector(REVIEW_CSS).getText();
+                    System.out.println("Star rating FIRST FOUND = " + ratingText);
+                    double rating = Double.parseDouble(ratingText) * 1000;
+                    item.incrementSelectionPoints((int) rating);
+                }
             }
             if (item.getSelectionPoints() != 0)
                 System.out.println("CALCULATED SELECTION POINT FOR " + item.getName() + " " + item.getSelectionPoints());
         }
+    }
+
+    private boolean isFirstItemFoundByBrand(String brand) {
+        String capitalBrandName = brand.substring(0, 1).toUpperCase() + brand.substring(1).toLowerCase();
+        boolean status = false;
+        try {
+            status = this.findElementByXpath("(//div[contains(text(),'" + capitalBrandName + "')])[1]").isDisplayed();
+        } catch (NoSuchElementException e) {
+            System.out.println("Item not found on price runner");
+        }
+        return status;
     }
 
     private boolean isItemFound(String productCode) {
@@ -65,7 +72,7 @@ public class PriceRunnerPage extends BasePage {
     private boolean isReviewDisplayed() {
         boolean status;
         try {
-            status = findElementByXpath(REVIEW_XPATH).isEnabled();
+            status = findElementByCssSelector(REVIEW_CSS).isDisplayed();
         } catch (NoSuchElementException e) {
             System.out.println("Price Runner review not displayed");
             status = false;

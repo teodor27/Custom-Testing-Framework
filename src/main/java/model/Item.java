@@ -57,8 +57,8 @@ public class Item {
         return selectionPoints;
     }
 
-    public Item setSelectionPoints(int selectionPoints) {
-        this.selectionPoints = selectionPoints;
+    public Item incrementSelectionPoints(int selectionPoints) {
+        this.selectionPoints += selectionPoints;
         return this;
     }
 

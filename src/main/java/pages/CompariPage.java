@@ -2,7 +2,6 @@ package pages;
 
 import model.Item;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
@@ -34,7 +33,7 @@ public class CompariPage extends BasePage {
                 String ratingText = this.findElementByCssSelector(REVIEW_CSS).getAttribute("title");
                 System.out.println("Star rating ELEMENT FOUND = " + ratingText);
                 double rating = Double.parseDouble(ratingText) * 1000;
-                item.setSelectionPoints((int) rating);
+                item.incrementSelectionPoints((int) rating);
             } else {
                 System.out.println("Trying by first item found....");
                 if (isFirstItemFoundByBrand(item.getBrand())) {
@@ -44,7 +43,7 @@ public class CompariPage extends BasePage {
                     String ratingText = this.findElementByCssSelector(REVIEW_CSS).getAttribute("title");
                     System.out.println("Star rating FIRST FOUND = " + ratingText);
                     double rating = Double.parseDouble(ratingText) * 1000;
-                    item.setSelectionPoints((int) rating);
+                    item.incrementSelectionPoints((int) rating);
                 }
             }
             if (item.getSelectionPoints() != 0)
