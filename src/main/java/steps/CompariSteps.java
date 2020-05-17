@@ -3,12 +3,9 @@ package steps;
 import net.thucydides.core.annotations.Step;
 import net.thucydides.core.steps.ScenarioSteps;
 import pages.CompariPage;
-import pages.MainEmagPage;
-import pages.PriceRunnerPage;
 
 public class CompariSteps extends ScenarioSteps {
     CompariPage compariPage;
-    MainEmagPage mainEmagPage;
 
     @Step
     public void openNewCompariTab() {
@@ -17,7 +14,7 @@ public class CompariSteps extends ScenarioSteps {
     }
 
     @Step
-    public void collectRatingInformation() {
+    public void collectRatingAndOfferInformation() {
         compariPage.collectProductInformation();
     }
 

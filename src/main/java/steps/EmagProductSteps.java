@@ -8,14 +8,8 @@ public class EmagProductSteps extends ScenarioSteps {
     EmagProductPage emagProductPage;
 
     @Step
-    public void openNewGoogleTab() {
-//        emagProductPage.collectProductCode();
-    }
-
-    @Step
     public void collectProductInformation() {
         emagProductPage.collectProductInfo();
-//        emagProductPage.correctProductCodeData();
     }
 
 }

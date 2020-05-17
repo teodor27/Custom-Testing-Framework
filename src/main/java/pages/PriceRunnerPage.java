@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement;
 public class PriceRunnerPage extends BasePage {
 
     private static final String SEARCH_BOX_ID = "search";
-    private static final String REVIEW_CSS = "a > div > div > div > span > div > div > span";
+    private static final String RATING_CSS = "a > div > div > div > span > div > div > span";
 
     public void openNewTab() {
         String link = "window.open('https://www.pricerunner.com/t/1/Sound-and-Vision');";
@@ -30,21 +30,25 @@ public class PriceRunnerPage extends BasePage {
             sleep(1500);
             searchBox.sendKeys(Keys.ENTER);
             this.sleep(800);
-            if (isItemFound(item.getProductCode())) {
-                String ratingText = this.findElementByCssSelector(REVIEW_CSS).getText();
+            if (isItemFound(item.getProductCode()) && isRatingDisplayed()) {
+                String ratingText = this.findElementByCssSelector(RATING_CSS).getText();
                 double rating = Double.parseDouble(ratingText) * 1000;
-                item.incrementSelectionPoints((int) rating);
+                if (rating > 0) {
+                    item.addSelectionPoints((int) rating);
+                    System.out.println("CALCULATED SELECTION POINT FOR " + item.getName() + " " + item.getSelectionPoints());
+                }
             } else {
                 System.out.println("Trying by first item found....");
-                if (isFirstItemFoundByBrand(item.getBrand()) && isReviewDisplayed()) {
-                    String ratingText = this.findElementByCssSelector(REVIEW_CSS).getText();
+                if (isFirstItemFoundByBrand(item.getBrand()) && isRatingDisplayed()) {
+                    String ratingText = this.findElementByCssSelector(RATING_CSS).getText();
                     System.out.println("Star rating FIRST FOUND = " + ratingText);
                     double rating = Double.parseDouble(ratingText) * 1000;
-                    item.incrementSelectionPoints((int) rating);
+                    if (rating > 0) {
+                        item.addSelectionPoints((int) rating);
+                        System.out.println("CALCULATED SELECTION POINT FOR " + item.getName() + " " + item.getSelectionPoints());
+                    }
                 }
             }
-            if (item.getSelectionPoints() != 0)
-                System.out.println("CALCULATED SELECTION POINT FOR " + item.getName() + " " + item.getSelectionPoints());
         }
     }
 
@@ -69,12 +73,12 @@ public class PriceRunnerPage extends BasePage {
         return status;
     }
 
-    private boolean isReviewDisplayed() {
+    private boolean isRatingDisplayed() {
         boolean status;
         try {
-            status = findElementByCssSelector(REVIEW_CSS).isDisplayed();
+            status = findElementByCssSelector(RATING_CSS).isDisplayed();
         } catch (NoSuchElementException e) {
-            System.out.println("Price Runner review not displayed");
+            System.out.println("Price Runner rating not displayed");
             status = false;
         }
         return status;

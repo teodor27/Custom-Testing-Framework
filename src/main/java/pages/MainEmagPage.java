@@ -2,6 +2,7 @@ package pages;
 
 import model.Item;
 import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -202,21 +203,9 @@ public class MainEmagPage extends BasePage {
     }
 
     public void filterOverPricedItems(double budget) {
-        double sum = 0;
-        double referencePrice;
-        for (Item item : itemList) {
-            sum += item.getPrice();
-        }
-//
-        double average = sum / itemList.size();
         System.out.println("Buget = " + budget);
-        System.out.println("AVERAGE PRICE = " + average);
-
-        if (budget > average) {
-            referencePrice = budget + budget - average;
-        } else {
-            referencePrice = budget + average - budget;
-        }
+        double referencePrice = budget + (10 * budget) / 100;
+        System.out.println("PRICE MARGIN = " + referencePrice);
 
         for (int i = 0; i < itemList.size(); i++) {
             if (itemList.get(i).getPrice() > referencePrice) {
@@ -270,8 +259,51 @@ public class MainEmagPage extends BasePage {
 
     public void reduceBestProductList() {
         int size = itemList.size();
-        if ( size > 10 )
+        if (size > 10)
             itemList.subList(10, size).clear();
     }
 
+    public void calculateFinalRatings() {
+        for (Item item : itemList) {
+            double sum = 0;
+            for (int i = 0; i < item.getSelectionPoints().size(); i++) {
+                sum += item.getSelectionPoints().get(i);
+            }
+            double averageRating = (item.getRating() + sum / 1000) / (item.getSelectionPoints().size() + 1);
+            item.setRating(averageRating);
+            System.out.println("Calculated average rating for " + item.getBrand() + " " + item.getProductCode() + " = " + item.getRating());
+        }
+    }
+
+    public void reduceToBestProduct() {
+        Item max = itemList.get(0);
+        for (int i = 0; i < itemList.size(); i++) {
+            if (itemList.get(i).getRating() > max.getRating()) {
+                max = itemList.get(i);
+            } else if (max.getRating() == itemList.get(i).getRating()) {
+                if (max.getNumberOfReviews() < itemList.get(i).getNumberOfReviews()) {
+                    max = itemList.get(i);
+                }
+            }
+        }
+
+        itemList.clear();
+        itemList.add(max);
+
+    }
+
+    public void openNewTab() {
+        String link = "window.open('https://www.emag.ro/homepage');";
+        ((JavascriptExecutor) getDriver()).executeScript(link);
+    }
+
+    public void openProductPage() {
+        this.openNewTab();
+        this.switchToTab(1);
+        this.sleep(1000);
+        System.out.println("Accessing URL: " + itemList.get(0).getUrl());
+        getDriver().navigate().to(itemList.get(0).getUrl());
+        this.waitUntilPageIsLoadedByCss("body");
+
+    }
 }

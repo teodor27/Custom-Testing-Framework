@@ -7,11 +7,6 @@ import pages.BasePage;
 public class BaseSteps extends ScenarioSteps {
     BasePage basePage;
 
-
-    @Step
-    public void goToEmagPage(String url) {
-    }
-
     @Step
     public void closeTab() {
         basePage.closeCurrentTab();

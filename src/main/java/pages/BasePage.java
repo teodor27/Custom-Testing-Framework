@@ -9,13 +9,11 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 import static java.time.Duration.ofMillis;
 
@@ -69,20 +67,6 @@ public class BasePage extends PageObject {
         return waitUntilPageIsLoadedByElement(By.cssSelector(css), 20, 200);
     }
 
-
-    // wait for string to be
-    public void waitForElementTextEqualsString(WebElement element, String expectedString, int specifiedTimeout) {
-        FluentWait wait = new WebDriverWait(getDriver(), specifiedTimeout);
-        ExpectedCondition<Boolean> elementTextEqualsString = arg0 -> element.getText().equals(expectedString);
-        wait.until(elementTextEqualsString);
-        wait.ignoring(StaleElementReferenceException.class);
-    }
-
-    public void waitUntilUrlContains(String text, int specifiedTimeout) {
-        FluentWait wait = globalFluentWait(specifiedTimeout, 200);
-        wait.until(ExpectedConditions.urlContains(text));
-    }
-
     public void waitUntilPageIsFullyLoaded(int timeOut) {
         FluentWait wait = globalFluentWait(timeOut, 100);
         JavascriptExecutor js = (JavascriptExecutor) getDriver();
@@ -96,66 +80,15 @@ public class BasePage extends PageObject {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector(css)));
     }
 
-    protected WebElement longWaitUntilPageIsLoadedByIdAndClickable(String id) {
-
-        return waitUntilPageIsLoadedByElementAndClickable(By.id(id), 100, 400);
-    }
-
     protected WebElement shortWaitUntilPageIsLoadedByIdAndClickable(String css) {
         return waitUntilPageIsLoadedByElementAndClickable(By.cssSelector(css), 20, 400);
 
     }
 
-    protected WebElement shortestWaitUntilPageIsLoadedByIdAndClickable(String id) {
-        return waitUntilPageIsLoadedByElementAndClickable(By.id(id), 2, 400);
-
-    }
-
-    protected WebElement waitUntilPageIsLoadedByXpath(String xPath) {
-        return waitUntilPageIsLoadedByElement(By.xpath(xPath), 20, 200);
-    }
-
-    protected void waitUntilNumberOfElementsToBe(By locator, int elementNumber) {
-        FluentWait wait = globalFluentWait(20, 200);
-        wait.until(ExpectedConditions.numberOfElementsToBe(locator, elementNumber));
-    }
-
-    protected List<WebElement> findAllDataByComposedXpath(String... data) {
-        List<String> xpathList = new ArrayList<>();
-
-        for (String value : data) {
-            String currentXpathElement = "//*[contains(@name,'" + value + "')] | //*[contains(@label, '" + value + "')] | //*[contains(@value,'" + value + "')] ";
-            xpathList.add(currentXpathElement);
-        }
-
-        String xpathToSearch = xpathList.stream().collect(Collectors.joining(" | "));
-
-        return findElementsByXpath(xpathToSearch);
-
-    }
-
-    public int getXPositionForElement(String element) {
-        return findElementByXpath("//*[contains(@name, '" + element + "')]").getLocation().getX();
-    }
-
-    public int getYPositionForElement(String element) {
-        return findElementByXpath("//*[contains(@name, '" + element + "')]").getLocation().getY();
-    }
-
-
     private WebElement waitUntilPageIsLoadedByElement(By locator, int timeOut, int poolingEvery) {
 
         FluentWait wait = globalFluentWait(timeOut, poolingEvery);
         wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
-        return getDriver().findElement(locator);
-
-    }
-
-    public WebElement waitUntilPageIsLoadedByElementPresent(By locator, int timeOut, int poolingEvery) {
-
-        FluentWait wait = globalFluentWait(timeOut, poolingEvery);
-        wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-
         return getDriver().findElement(locator);
 
     }

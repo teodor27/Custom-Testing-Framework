@@ -5,11 +5,15 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
+import java.util.List;
+
 public class CompariPage extends BasePage {
 
     private static final String SEARCH_BOX_ID = "st";
-    private static final String REVIEW_CSS = ".hidden-xs [data-tab-name='pareri']";
+    private static final String RATING_CSS = ".hidden-xs [data-tab-name='pareri']";
     private static final String SEARCH_BUTTON_CSS = ".btn-primary.button-search";
+    private static final String TOP_OFFERED_PRICES_CSS = "#offer-block-paying .row-price > span";
+    private static final String TOP_OFFERED_URL_XPATH = "//*[@id='offer-block-paying']/div/a";
 
     public void openNewTab() {
         String link = "window.open('https://www.compari.ro');";
@@ -30,24 +34,57 @@ public class CompariPage extends BasePage {
             this.sleep(800);
             if (isItemFound(item.getProductCode())) {
                 this.findElementByXpath("//a[contains(@title,'" + item.getProductCode() + "')]").click();
-                String ratingText = this.findElementByCssSelector(REVIEW_CSS).getAttribute("title");
+                this.waitUntilPageIsLoadedByCss(RATING_CSS);
+                String ratingText = this.findElementByCssSelector(RATING_CSS).getAttribute("title");
                 System.out.println("Star rating ELEMENT FOUND = " + ratingText);
                 double rating = Double.parseDouble(ratingText) * 1000;
-                item.incrementSelectionPoints((int) rating);
+                if (rating > 0) {
+                    item.addSelectionPoints((int) rating);
+                    System.out.println("CALCULATED SELECTION POINT FOR " + item.getName() + " " + item.getSelectionPoints());
+                }
+                saveBetterOffer(item);
             } else {
                 System.out.println("Trying by first item found....");
                 if (isFirstItemFoundByBrand(item.getBrand())) {
                     String brandName = item.getBrand();
                     String capitalizedBrandName = brandName.substring(0, 1).toUpperCase() + brandName.substring(1).toLowerCase();
                     this.findElementByXpath("(//h2/a[contains(@title,'" + capitalizedBrandName + "')])[1]").click();
-                    String ratingText = this.findElementByCssSelector(REVIEW_CSS).getAttribute("title");
+                    this.waitUntilPageIsLoadedByCss(RATING_CSS);
+                    String ratingText = this.findElementByCssSelector(RATING_CSS).getAttribute("title");
                     System.out.println("Star rating FIRST FOUND = " + ratingText);
                     double rating = Double.parseDouble(ratingText) * 1000;
-                    item.incrementSelectionPoints((int) rating);
+                    if (rating > 0) {
+                        item.addSelectionPoints((int) rating);
+                        System.out.println("CALCULATED SELECTION POINT FOR " + item.getName() + " " + item.getSelectionPoints());
+                    }
+                    saveBetterOffer(item);
                 }
             }
-            if (item.getSelectionPoints() != 0)
-                System.out.println("CALCULATED SELECTION POINT FOR " + item.getName() + " " + item.getSelectionPoints());
+        }
+    }
+
+    private void saveBetterOffer(Item item) {
+        List<WebElement> top3OfferPriceElements = this.findElementsByCssSelector(TOP_OFFERED_PRICES_CSS);
+        System.out.println("lista preturi = " + top3OfferPriceElements.size());
+        List<WebElement> top3OfferUrlElements = this.findElementsByXpath(TOP_OFFERED_URL_XPATH);
+        System.out.println("lista url-uri = " + top3OfferUrlElements.size());
+        for (int i = 0; i < top3OfferPriceElements.size(); i++) {
+            String rawPrice = top3OfferPriceElements.get(i).getAttribute("content");
+            double compariPrice = Double.parseDouble(rawPrice);
+            System.out.println(compariPrice + " VS " + item.getPrice());
+            if (item.getPrice() > compariPrice) {
+                System.out.println("Setting new price and URL... for " + item.getBrand() + " " + item.getProductCode());
+                System.out.println("Old price = " + item.getPrice());
+                item.setPrice(compariPrice);
+                System.out.println("New price = " + item.getPrice());
+                String compariUrl = top3OfferUrlElements.get(i).getAttribute("href");
+                System.out.println("Old URL = " + item.getUrl());
+                item.setUrl(compariUrl);
+                System.out.println("New URL = " + item.getUrl());
+
+            } else {
+                System.out.println("No better offer found...");
+            }
         }
     }
 
@@ -55,7 +92,7 @@ public class CompariPage extends BasePage {
         String capitalized = brand.substring(0, 1).toUpperCase() + brand.substring(1).toLowerCase();
         boolean status = false;
         try {
-        status = this.findElementByXpath("(//h2/a[contains(@title,'" + capitalized + "')])[1]").isDisplayed();
+            status = this.findElementByXpath("(//h2/a[contains(@title,'" + capitalized + "')])[1]").isDisplayed();
         } catch (NoSuchElementException e) {
             System.out.println("FIRST Item not found on compari");
         }
@@ -68,17 +105,6 @@ public class CompariPage extends BasePage {
             status = this.findElementByXpath("//a[contains(@title,'" + productCode + "')]").isDisplayed();
         } catch (NoSuchElementException e) {
             System.out.println("Item not found on compari");
-        }
-        return status;
-    }
-
-    private boolean isReviewDisplayed() {
-        boolean status;
-        try {
-            status = findElementByXpath(REVIEW_CSS).isEnabled();
-        } catch (NoSuchElementException e) {
-            System.out.println("Price Runner review not displayed");
-            status = false;
         }
         return status;
     }

@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Item {
@@ -7,13 +9,13 @@ public class Item {
     private int numberOfReviews;
     private double rating;
     private double price;
-    private int selectionPoints;
+    private List<Integer> selectionPoints;
     private String brand;
     private String productCode;
     private String url;
 
     public Item() {
-        this.selectionPoints = 0;
+        this.selectionPoints = new ArrayList<>();
     }
 
 
@@ -53,12 +55,12 @@ public class Item {
         return this;
     }
 
-    public int getSelectionPoints() {
+    public List<Integer> getSelectionPoints() {
         return selectionPoints;
     }
 
-    public Item incrementSelectionPoints(int selectionPoints) {
-        this.selectionPoints += selectionPoints;
+    public Item addSelectionPoints(int selectionPoints) {
+        this.selectionPoints.add(selectionPoints);
         return this;
     }
 

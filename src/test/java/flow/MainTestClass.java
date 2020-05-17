@@ -33,8 +33,7 @@ public class MainTestClass extends BaseTestClass {
         webDriver.navigate().to("https://www.emag.ro/homepage");
         //TODO add login
         mainEmagSteps.selectSearchBox();
-        //TODO implement inpunt collection form file
-        mainEmagSteps.searchForItem("Masina de spalat vase");
+        mainEmagSteps.searchForItem("Boxe wireless");
         //TODO make check that the search has relevant results
         mainEmagSteps.checkItemsAreFound();
         mainEmagSteps.closeCookiePrompt();
@@ -45,18 +44,17 @@ public class MainTestClass extends BaseTestClass {
     @Test()
     public void test2_FilterAndCollect() {
         mainEmagSteps.applyLeftSidebarRatingFilter();
-        //TODO there are cases where the filter is already applied
         mainEmagSteps.sortByNumberOfReviews();
         mainEmagSteps.collectInformation();
         mainEmagSteps.filterItemsBelowAverage();
-        mainEmagSteps.filterByBudget(2000);
+        mainEmagSteps.filterByBudget(600.0);
         mainEmagSteps.narrowDownBestProducts();
         emagProductSteps.collectProductInformation();
         baseSteps.closeTab();
 
     }
 
-    @Title("Filter Reviews and collect data")
+    @Title("Filter Reviews and collect data 2")
     @Test()
     public void test3_CheckPriceRunnerReviews() {
         priceRunnerSteps.openNewPriceRunnerTab();
@@ -64,13 +62,19 @@ public class MainTestClass extends BaseTestClass {
         baseSteps.closeTab();
     }
 
-    @Title("Filter Reviews and collect data")
+    @Title("Filter Reviews and collect data 3")
     @Test()
     public void test3_CheckCompariReviews() {
         compariSteps.openNewCompariTab();
-        compariSteps.collectRatingInformation();
+        compariSteps.collectRatingAndOfferInformation();
         baseSteps.closeTab();
     }
 
+    @Title("Determine final product")
+    @Test()
+    public void test3_DetermineBestProduct() {
+        mainEmagSteps.determineBestProduct();
+        mainEmagSteps.openProductPage();
+    }
 
 }

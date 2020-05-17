@@ -29,15 +29,4 @@ public class EmagProductPage extends BasePage {
             item.setBrand(brand);
         }
     }
-
-    public void correctProductCodeData() {
-        for (Item item : itemList) {
-            String descriereTemp = item.getName().split(item.getBrand() + " ")[1];
-            String potentialCorrection = descriereTemp.split(",")[0];
-            if (!item.getProductCode().equals(potentialCorrection)) {
-                System.out.println("Replacing product code ... " + item.getProductCode() + "with " + potentialCorrection);
-                item.setProductCode(potentialCorrection);
-            }
-        }
-    }
 }
