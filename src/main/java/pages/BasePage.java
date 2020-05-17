@@ -9,6 +9,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
+import util.Input;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -20,7 +21,13 @@ import static java.time.Duration.ofMillis;
 public class BasePage extends PageObject {
 
     protected static List<Item> itemList = new ArrayList<>();
-    protected String input;
+
+    Input input = new Input();
+
+    public void openNewTab(String url) {
+        String link = "window.open('" + url + "');";
+        ((JavascriptExecutor) getDriver()).executeScript(link);
+    }
 
     protected void sleep(int miliseconds) {
         try {
@@ -65,14 +72,6 @@ public class BasePage extends PageObject {
 
     protected WebElement waitUntilPageIsLoadedByCss(String css) {
         return waitUntilPageIsLoadedByElement(By.cssSelector(css), 20, 200);
-    }
-
-    public void waitUntilPageIsFullyLoaded(int timeOut) {
-        FluentWait wait = globalFluentWait(timeOut, 100);
-        JavascriptExecutor js = (JavascriptExecutor) getDriver();
-        String status = String.valueOf(js.executeScript("return document.readyState"));
-        ExpectedCondition<Boolean> textEqualsString = arg0 -> status.equals("complete");
-        wait.until(textEqualsString);
     }
 
     public void waitUntilElementIsInvisible(String css, int specifiedTimeout) {

@@ -1,7 +1,6 @@
 package pages;
 
 import model.Item;
-import org.openqa.selenium.JavascriptExecutor;
 
 public class EmagProductPage extends BasePage {
 
@@ -9,14 +8,8 @@ public class EmagProductPage extends BasePage {
     private static final String BRAND_CSS = ".disclaimer-section a";
 
 
-    public void openNewTab() {
-        String link = "window.open('https://www.emag.ro/homepage');";
-        ((JavascriptExecutor) getDriver()).executeScript(link);
-    }
-
-
     public void collectProductInfo() {
-        this.openNewTab();
+        this.openNewTab(input.getEMagUrl());
         this.switchToTab(1);
         for (Item item : itemList) {
             this.sleep(1000);

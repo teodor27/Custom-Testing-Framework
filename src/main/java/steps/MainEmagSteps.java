@@ -3,11 +3,13 @@ package steps;
 import net.thucydides.core.annotations.Step;
 import net.thucydides.core.steps.ScenarioSteps;
 import pages.MainEmagPage;
+import util.Input;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MainEmagSteps extends ScenarioSteps {
     MainEmagPage mainEmagPage;
+    Input input = new Input();
 
     @Step()
     public void selectSearchBox() {
@@ -16,8 +18,8 @@ public class MainEmagSteps extends ScenarioSteps {
     }
 
     @Step()
-    public void searchForItem(String input) {
-        mainEmagPage.typeIntoSearchBox(input);
+    public void searchForItem() {
+        mainEmagPage.typeIntoSearchBox(input.getProductCategory());
         mainEmagPage.pressSearch();
     }
 
@@ -56,7 +58,8 @@ public class MainEmagSteps extends ScenarioSteps {
     }
 
     @Step
-    public void filterByBudget(double budget) {
+    public void filterByBudget() {
+        double budget = Double.parseDouble(input.getBudget());
         mainEmagPage.filterOverPricedItems(budget);
     }
 
@@ -76,5 +79,10 @@ public class MainEmagSteps extends ScenarioSteps {
     @Step
     public void openProductPage() {
         mainEmagPage.openProductPage();
+    }
+
+    @Step
+    public void navigateToHomePage() {
+        mainEmagPage.navigateToHomePage(input.getEMagUrl());
     }
 }

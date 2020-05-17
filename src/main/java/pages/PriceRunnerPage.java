@@ -1,7 +1,6 @@
 package pages;
 
 import model.Item;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
@@ -11,25 +10,9 @@ public class PriceRunnerPage extends BasePage {
     private static final String SEARCH_BOX_ID = "search";
     private static final String RATING_CSS = "a > div > div > div > span > div > div > span";
 
-    public void openNewTab() {
-        String link = "window.open('https://www.pricerunner.com/t/1/Sound-and-Vision');";
-        ((JavascriptExecutor) getDriver()).executeScript(link);
-    }
-
     public void collectProductInformation() {
-        String searchItem;
         for (Item item : itemList) {
-            this.sleep(800);
-            System.out.println("Searching PriceRunner for: " + item.getBrand() + " " + item.getProductCode());
-            WebElement searchBox = this.waitUntilPageIsLoadedById(SEARCH_BOX_ID);
-            searchItem = item.getBrand() + " " + item.getProductCode();
-            searchBox.sendKeys(Keys.CONTROL + "a");
-            searchBox.sendKeys(Keys.DELETE);
-            sleep(1500);
-            searchBox.sendKeys(searchItem);
-            sleep(1500);
-            searchBox.sendKeys(Keys.ENTER);
-            this.sleep(800);
+            searchForItem(item);
             if (isItemFound(item.getProductCode()) && isRatingDisplayed()) {
                 String ratingText = this.findElementByCssSelector(RATING_CSS).getText();
                 double rating = Double.parseDouble(ratingText) * 1000;
@@ -50,6 +33,20 @@ public class PriceRunnerPage extends BasePage {
                 }
             }
         }
+    }
+
+    private void searchForItem(Item item) {
+        this.sleep(800);
+        System.out.println("Searching PriceRunner for: " + item.getBrand() + " " + item.getProductCode());
+        WebElement searchBox = this.waitUntilPageIsLoadedById(SEARCH_BOX_ID);
+        String searchItem = item.getBrand() + " " + item.getProductCode();
+        searchBox.sendKeys(Keys.CONTROL + "a");
+        searchBox.sendKeys(Keys.DELETE);
+        sleep(1500);
+        searchBox.sendKeys(searchItem);
+        sleep(1500);
+        searchBox.sendKeys(Keys.ENTER);
+        this.sleep(800);
     }
 
     private boolean isFirstItemFoundByBrand(String brand) {

@@ -27,52 +27,50 @@ public class MainTestClass extends BaseTestClass {
     CompariSteps compariSteps;
 
 
-    @Title("Search for item in Emag Main Page")
+    @Title("Search for item category in Emag Home Page")
     @Test()
     public void test1_SearchForItem() {
-        webDriver.navigate().to("https://www.emag.ro/homepage");
-        //TODO add login
+        mainEmagSteps.navigateToHomePage();
         mainEmagSteps.selectSearchBox();
-        mainEmagSteps.searchForItem("Boxe wireless");
-        //TODO make check that the search has relevant results
+        mainEmagSteps.searchForItem();
         mainEmagSteps.checkItemsAreFound();
         mainEmagSteps.closeCookiePrompt();
 
     }
 
-    @Title("Filter Reviews and collect data")
+    @Title("Filter by Reviews and collect product data")
     @Test()
     public void test2_FilterAndCollect() {
         mainEmagSteps.applyLeftSidebarRatingFilter();
         mainEmagSteps.sortByNumberOfReviews();
         mainEmagSteps.collectInformation();
         mainEmagSteps.filterItemsBelowAverage();
-        mainEmagSteps.filterByBudget(600.0);
+        mainEmagSteps.filterByBudget();
         mainEmagSteps.narrowDownBestProducts();
         emagProductSteps.collectProductInformation();
         baseSteps.closeTab();
 
     }
 
-    @Title("Filter Reviews and collect data 2")
+    @Title("Find reviews in PriceRunner website")
     @Test()
-    public void test3_CheckPriceRunnerReviews() {
+    public void test4_CheckPriceRunnerReviews() {
         priceRunnerSteps.openNewPriceRunnerTab();
         priceRunnerSteps.collectRatingInformation();
         baseSteps.closeTab();
     }
 
-    @Title("Filter Reviews and collect data 3")
+    @Title("Find reviews and better prices in Compari.ro website")
     @Test()
-    public void test3_CheckCompariReviews() {
+    public void test5_CheckCompariReviews() {
         compariSteps.openNewCompariTab();
         compariSteps.collectRatingAndOfferInformation();
         baseSteps.closeTab();
     }
 
-    @Title("Determine final product")
+    @Title("Determine best product")
     @Test()
-    public void test3_DetermineBestProduct() {
+    public void test6_DetermineBestProduct() {
         mainEmagSteps.determineBestProduct();
         mainEmagSteps.openProductPage();
     }

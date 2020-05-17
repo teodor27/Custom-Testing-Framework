@@ -1,14 +1,10 @@
 package pages;
 
 import model.Item;
-import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
-
-import java.util.ArrayList;
-import java.util.List;
+import util.Input;
 
 public class MainEmagPage extends BasePage {
 
@@ -17,21 +13,18 @@ public class MainEmagPage extends BasePage {
     private static final String SEARCH_BUTTON_CSS = ".searchbox-submit-button";
     private static final String SEARCH_RESULTS_CARDS_CSS = ".card-item.js-product-data";
     private static final String FILTER_BUTTON_CSS = "div:nth-child(2) > div.sort-control-btn-dropdown.hidden-xs > button";
-    private static final String FILTER_BUTTON_SPAN_CSS = "div:nth-child(2) > div.sort-control-btn-dropdown.hidden-xs > button > .sort-control-btn-option";
     private static final String NUMBER_OF_REVIEWS_CSS = "[data-sort-id='reviews']";
-    private static final String POPULARITY_CSS = "[data-sort-id='new_popularity']";
-    private static final String ITEM_CARDS_REVIEW_CSS = ".star-rating-text  .hidden-xs";
     private static final String ITEM_STAR_RATING_CSS = ".js-product-url .star-rating";
     private static final String ITEM_STAR_NUMBER_CSS = ".js-product-url .star-rating-text .hidden-xs";
     private static final String ITEM_TITLE_CSS = ".product-title-zone a";
     private static final String ITEM_PRICE_CSS = ".product-new-price";
     private static final String NEXT_PAGE_BUTTON_XPATH = "//span[text()='Pagina urmatoare']";
     private static final String COOKIE_PROMPT_CSS = ".js-later";
-    private static final String GDPR_COOKIE_BANNER = ".gdpr-cookie-banner";
     private static final String SEO_PAGE_BODY_ID = "#seo-links-body";
     private static final String PRELOADER_CSS = "#card_grid .preloader";
     private static final String RATING_FILTER_CSS = "[data-option-id='1-5']";
-    private static final String TOTAL_RATED_PRODUCTS_CSS = ".ph-label";
+
+    Input input = new Input();
 
 
     public void clickSearchBox() {
@@ -44,7 +37,6 @@ public class MainEmagPage extends BasePage {
     }
 
     public void typeIntoSearchBox(String input) {
-        this.input = input;
         this.findElementById(SEARCH_BOX_ID).sendKeys(input);
     }
 
@@ -66,25 +58,6 @@ public class MainEmagPage extends BasePage {
         this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
         this.waitUntilElementIsInvisible((PRELOADER_CSS), 10);
 
-    }
-
-    public boolean checkPageIsSortedByNumberOfReviews() {
-        boolean status = true;
-        List<Integer> numberOfRatingsList = new ArrayList<>();
-        List<WebElement> elementList = this.findElementsByCssSelector(ITEM_CARDS_REVIEW_CSS);
-        for (WebElement element : elementList) {
-            String text = element.getText();
-            int number = Integer.parseInt(text.split(" ")[0]);
-            numberOfRatingsList.add(number);
-        }
-
-        for (int i = 0; i < numberOfRatingsList.size() - 1; i++) {
-            if (numberOfRatingsList.get(i) < numberOfRatingsList.get(i + 1)) {
-                status = false;
-                break;
-            }
-        }
-        return status;
     }
 
     public void closeCookiePrompt() {
@@ -164,7 +137,7 @@ public class MainEmagPage extends BasePage {
     }
 
     public void filterLowNumberItems() {
-        int sum = 0;
+        double sum = 0;
         for (Item item : itemList) {
             sum += item.getNumberOfReviews();
         }
@@ -238,25 +211,6 @@ public class MainEmagPage extends BasePage {
         this.waitUntilElementIsInvisible((PRELOADER_CSS), 10);
     }
 
-    private int getNumberOfRatedProducts() {
-        String ratedElementsRawText = this.findElementByCssSelector(TOTAL_RATED_PRODUCTS_CSS).getText();
-        return Integer.parseInt(StringUtils.substringBetween(ratedElementsRawText, "(", ")"));
-    }
-
-//    public void filterNonPopularItems() {
-//        System.out.println("List size before popular filter: " + itemList.size());
-//        itemList.subList(0, itemList.size() / 2);
-//        System.out.println("List size after popular filter: " + itemList.size());
-//    }
-
-    public void sortByMostPopular() {
-        if (findElementByCssSelector(FILTER_BUTTON_CSS).getText().contains("Relevant")) {
-            this.findElementByCssSelector(POPULARITY_CSS).click();
-            this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
-            this.waitUntilElementIsInvisible((PRELOADER_CSS), 2);
-        }
-    }
-
     public void reduceBestProductList() {
         int size = itemList.size();
         if (size > 10)
@@ -286,24 +240,21 @@ public class MainEmagPage extends BasePage {
                 }
             }
         }
-
         itemList.clear();
         itemList.add(max);
-
     }
 
-    public void openNewTab() {
-        String link = "window.open('https://www.emag.ro/homepage');";
-        ((JavascriptExecutor) getDriver()).executeScript(link);
-    }
 
     public void openProductPage() {
-        this.openNewTab();
+        this.openNewTab(input.getEMagUrl());
         this.switchToTab(1);
         this.sleep(1000);
         System.out.println("Accessing URL: " + itemList.get(0).getUrl());
         getDriver().navigate().to(itemList.get(0).getUrl());
         this.waitUntilPageIsLoadedByCss("body");
+    }
 
+    public void navigateToHomePage(String eMagUrl) {
+        getDriver().navigate().to(eMagUrl);
     }
 }
