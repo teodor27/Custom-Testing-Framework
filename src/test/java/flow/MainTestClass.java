@@ -27,9 +27,9 @@ public class MainTestClass extends BaseTestClass {
     CompariSteps compariSteps;
 
 
-    @Title("Search for item category in Emag Home Page")
+    @Title("A - Search for item category in Emag Home Page")
     @Test()
-    public void test1_SearchForItem() {
+    public void test_1() {
         mainEmagSteps.navigateToHomePage();
         mainEmagSteps.selectSearchBox();
         mainEmagSteps.searchForItem();
@@ -38,9 +38,9 @@ public class MainTestClass extends BaseTestClass {
 
     }
 
-    @Title("Filter by Reviews and collect product data")
+    @Title("B - Filter by Reviews and collect product data")
     @Test()
-    public void test2_FilterAndCollect() {
+    public void test_2() {
         mainEmagSteps.applyLeftSidebarRatingFilter();
         mainEmagSteps.sortByNumberOfReviews();
         mainEmagSteps.collectInformation();
@@ -52,25 +52,25 @@ public class MainTestClass extends BaseTestClass {
 
     }
 
-    @Title("Find reviews in PriceRunner website")
+    @Title("C - Find reviews in PriceRunner website")
     @Test()
-    public void test4_CheckPriceRunnerReviews() {
+    public void test_3() {
         priceRunnerSteps.openNewPriceRunnerTab();
         priceRunnerSteps.collectRatingInformation();
         baseSteps.closeTab();
     }
 
-    @Title("Find reviews and better prices in Compari.ro website")
+    @Title("D - Find reviews and better prices in Compari.ro website")
     @Test()
-    public void test5_CheckCompariReviews() {
+    public void test_4() {
         compariSteps.openNewCompariTab();
         compariSteps.collectRatingAndOfferInformation();
         baseSteps.closeTab();
     }
 
-    @Title("Determine best product")
+    @Title("E - Determine best product")
     @Test()
-    public void test6_DetermineBestProduct() {
+    public void test_5() {
         mainEmagSteps.determineBestProduct();
         mainEmagSteps.openProductPage();
     }
