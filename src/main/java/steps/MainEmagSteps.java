@@ -70,19 +70,24 @@ public class MainEmagSteps extends ScenarioSteps {
     }
 
     @Step
-    public void determineBestProduct() {
+    public void determineBestProducts() {
         mainEmagPage.calculateFinalRatings();
-        mainEmagPage.reduceToBestProduct();
+        mainEmagPage.reduceToBestProducts();
         mainEmagPage.displayItems();
     }
 
     @Step
-    public void openProductPage() {
-        mainEmagPage.openProductPage();
+    public void openProductPage(int rank) {
+        mainEmagPage.openProductPageByRank(rank);
     }
 
     @Step
     public void navigateToHomePage() {
         mainEmagPage.navigateToHomePage(input.getEMagUrl());
+    }
+
+    @Step
+    public void applyLeftSidebarStockFilter() {
+        mainEmagPage.pressStockFilter();
     }
 }

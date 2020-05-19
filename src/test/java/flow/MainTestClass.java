@@ -41,6 +41,7 @@ public class MainTestClass extends BaseTestClass {
     @Title("B - Filter by Reviews and collect product data")
     @Test()
     public void test_2() {
+        mainEmagSteps.applyLeftSidebarStockFilter();
         mainEmagSteps.applyLeftSidebarRatingFilter();
         mainEmagSteps.sortByNumberOfReviews();
         mainEmagSteps.collectInformation();
@@ -68,11 +69,25 @@ public class MainTestClass extends BaseTestClass {
         baseSteps.closeTab();
     }
 
-    @Title("E - Determine best product")
+    @Title("E - Determine best product number 1")
     @Test()
     public void test_5() {
-        mainEmagSteps.determineBestProduct();
-        mainEmagSteps.openProductPage();
+        mainEmagSteps.determineBestProducts();
+        mainEmagSteps.openProductPage(1);
+    }
+
+    @Title("F - Determine best product number 2")
+    @Test()
+    public void test_6() {
+        baseSteps.closeTab();
+        mainEmagSteps.openProductPage(2);
+    }
+
+    @Title("G - Determine best product number 3")
+    @Test()
+    public void test_7() {
+        baseSteps.closeTab();
+        mainEmagSteps.openProductPage(3);
     }
 
 }

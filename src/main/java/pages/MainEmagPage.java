@@ -6,6 +6,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import util.Input;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainEmagPage extends BasePage {
 
     private static final String SEARCH_BOX_ID = "searchboxTrigger";
@@ -23,6 +26,7 @@ public class MainEmagPage extends BasePage {
     private static final String SEO_PAGE_BODY_ID = "#seo-links-body";
     private static final String PRELOADER_CSS = "#card_grid .preloader";
     private static final String RATING_FILTER_CSS = "[data-option-id='1-5']";
+    private static final String STOCK_FILTER_CSS = "[data-name='In Stoc']";
 
     Input input = new Input();
 
@@ -50,7 +54,10 @@ public class MainEmagPage extends BasePage {
     }
 
     public void clickSortButton() {
-        this.findElementByCssSelector(FILTER_BUTTON_CSS).click();
+        WebElement element = this.findElementByCssSelector(FILTER_BUTTON_CSS);
+        Actions action = new Actions(this.getDriver());
+        action.moveToElement(element).build().perform();
+        element.click();
     }
 
     public void sortByNumberOfReviews() {
@@ -177,7 +184,8 @@ public class MainEmagPage extends BasePage {
 
     public void filterOverPricedItems(double budget) {
         System.out.println("Buget = " + budget);
-        double referencePrice = budget + (10 * budget) / 100;
+        int priceDeviationPercentage = 15;
+        double referencePrice = budget + (priceDeviationPercentage * budget) / 100;
         System.out.println("PRICE MARGIN = " + referencePrice);
 
         for (int i = 0; i < itemList.size(); i++) {
@@ -191,13 +199,13 @@ public class MainEmagPage extends BasePage {
     }
 
     public void filterDuplicateItems() {
-        System.out.println("LIST BEFORE DUPLICATE FILTER: " + itemList.size());
         for (int i = 0; i < itemList.size() - 1; i++) {
-            if (itemList.get(i).getName().split(",")[0].contentEquals(itemList.get(i + 1).getName().split(",")[0]) &&
-                    itemList.get(i).getNumberOfReviews() == itemList.get(i + 1).getNumberOfReviews() &&
-                    itemList.get(i).getRating() == itemList.get(i + 1).getRating()) {
+            if (itemList.get(i).getNumberOfReviews() == itemList.get(i + 1).getNumberOfReviews() &&
+                    itemList.get(i).getRating() == itemList.get(i + 1).getRating() &&
+                    itemList.get(i).getName().contains(itemList.get(i + 1).getName().split(",")[0])) {
+                System.out.println("Duplicate found .... " + itemList.get(i).toString());
                 itemList.remove(i);
-                i--;
+                i = 0;
             }
         }
         System.out.println("LIST AFTER DUPLICATE FILTER: " + itemList.size());
@@ -229,32 +237,89 @@ public class MainEmagPage extends BasePage {
         }
     }
 
-    public void reduceToBestProduct() {
-        Item max = itemList.get(0);
-        for (int i = 0; i < itemList.size(); i++) {
-            if (itemList.get(i).getRating() > max.getRating()) {
-                max = itemList.get(i);
-            } else if (max.getRating() == itemList.get(i).getRating()) {
-                if (max.getNumberOfReviews() < itemList.get(i).getNumberOfReviews()) {
-                    max = itemList.get(i);
+    public void reduceToBestProducts() {
+        List<Item> temporaryList = itemList;
+        List<Item> top3List = new ArrayList<>();
+        top3List.add(itemList.get(0));
+        temporaryList.remove(itemList.get(0));
+        double reviewNumberAverage = calculateNumberOfRatingsAverage();
+        System.out.println("NO OF REVIEWS AVERAGE = " + reviewNumberAverage);
+
+        if (itemList.size() > 1) {
+            Item maxRating = temporaryList.get(0);
+            for (int i = 0; i < temporaryList.size(); i++) {
+                if (temporaryList.get(i).getRating() > maxRating.getRating()) {
+                    maxRating = temporaryList.get(i);
+                } else if (maxRating.getRating() == temporaryList.get(i).getRating()) {
+                    if (maxRating.getNumberOfReviews() < temporaryList.get(i).getNumberOfReviews()) {
+                        maxRating = temporaryList.get(i);
+                    } else if (maxRating.getNumberOfReviews() == temporaryList.get(i).getNumberOfReviews()) {
+                        if (maxRating.getPrice() > temporaryList.get(i).getPrice()) {
+                            maxRating = temporaryList.get(i);
+                        }
+                    }
                 }
             }
+            temporaryList.remove(maxRating);
+            top3List.add(maxRating);
         }
+
+        if (itemList.size() > 2) {
+            Item bestPrice = temporaryList.get(0);
+            for (int i = 0; i < temporaryList.size(); i++) {
+                if (temporaryList.get(i).getPrice() < bestPrice.getPrice()) {
+                    bestPrice = temporaryList.get(i);
+                } else if (bestPrice.getPrice() == temporaryList.get(i).getPrice()) {
+                    if (bestPrice.getRating() < temporaryList.get(i).getRating()) {
+                        bestPrice = temporaryList.get(i);
+                    } else if (bestPrice.getRating() == temporaryList.get(i).getRating()) {
+                        if (bestPrice.getNumberOfReviews() > temporaryList.get(i).getNumberOfReviews()) {
+                            bestPrice = temporaryList.get(i);
+                        }
+                    }
+                }
+            }
+
+            temporaryList.remove(bestPrice);
+            top3List.add(bestPrice);
+        }
+
         itemList.clear();
-        itemList.add(max);
+        itemList = top3List;
+    }
+
+    private double calculateNumberOfRatingsAverage() {
+        double sum = 0;
+        for (Item item : itemList) {
+            sum += item.getNumberOfReviews();
+        }
+        return sum / itemList.size();
     }
 
 
-    public void openProductPage() {
-        this.openNewTab(input.getEMagUrl());
-        this.switchToTab(1);
-        this.sleep(1000);
-        System.out.println("Accessing URL: " + itemList.get(0).getUrl());
-        getDriver().navigate().to(itemList.get(0).getUrl());
-        this.waitUntilPageIsLoadedByCss("body");
+    public void openProductPageByRank(int rank) {
+        try {
+            this.openNewTab(input.getEMagUrl());
+            this.switchToTab(1);
+            this.sleep(1000);
+            System.out.println("Accessing URL: " + itemList.get(rank - 1).getUrl());
+            getDriver().navigate().to(itemList.get(rank - 1).getUrl());
+            this.waitUntilPageIsLoadedByCss("body");
+        } catch (NullPointerException e) {
+            System.out.println("Rank " + rank + " ..... does not exist");
+        }
+
     }
 
     public void navigateToHomePage(String eMagUrl) {
         getDriver().navigate().to(eMagUrl);
+    }
+
+    public void pressStockFilter() {
+        Actions action = new Actions(getDriver());
+        action.moveToElement(findElementByCssSelector(STOCK_FILTER_CSS)).build().perform();
+        this.findElementByCssSelector(STOCK_FILTER_CSS).click();
+        this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
+        this.waitUntilElementIsInvisible((PRELOADER_CSS), 10);
     }
 }
