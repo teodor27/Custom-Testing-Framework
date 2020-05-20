@@ -305,7 +305,7 @@ public class MainEmagPage extends BasePage {
             System.out.println("Accessing URL: " + itemList.get(rank - 1).getUrl());
             getDriver().navigate().to(itemList.get(rank - 1).getUrl());
             this.waitUntilPageIsLoadedByCss("body");
-        } catch (NullPointerException e) {
+        } catch (IndexOutOfBoundsException e) {
             System.out.println("Rank " + rank + " ..... does not exist");
         }
 
