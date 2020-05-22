@@ -13,25 +13,38 @@ public class CompariPage extends BasePage {
     private static final String SEARCH_BUTTON_CSS = ".btn-primary.button-search";
     private static final String TOP_OFFERED_PRICES_CSS = "#offer-block-paying .row-price > span";
     private static final String TOP_OFFERED_URL_XPATH = "//*[@id='offer-block-paying']/div/a";
+    private static final String ITEM_NOT_FOUND_WARNING_CSS = ".alert-warning";
 
     public void collectProductInformation() {
         for (Item item : itemList) {
             searchForItem(item);
-            if (isItemFound(item.getProductCode())) {
-                this.findElementByXpath("//a[contains(@title,'" + item.getProductCode() + "')]").click();
-                setItemRating(item);
-                saveBetterOffer(item);
-            } else {
-                System.out.println("Trying by first item found....");
-                if (isFirstItemFoundByBrand(item.getBrand())) {
-                    String brandName = item.getBrand();
-                    String capitalizedBrandName = brandName.substring(0, 1).toUpperCase() + brandName.substring(1).toLowerCase();
-                    this.findElementByXpath("(//h2/a[contains(@title,'" + capitalizedBrandName + "')])[1]").click();
+            if (!isItemNotFoundWarningDisplayed()) {
+                if (isItemFound(item.getProductCode())) {
+                    this.findElementByXpath("//a[contains(@title,'" + item.getProductCode() + "')]").click();
                     setItemRating(item);
                     saveBetterOffer(item);
+                } else {
+                    System.out.println("Trying by first item found....");
+                    if (isFirstItemFoundByBrand(item.getBrand())) {
+                        String brandName = item.getBrand();
+                        String capitalizedBrandName = brandName.substring(0, 1).toUpperCase() + brandName.substring(1).toLowerCase();
+                        this.findElementByXpath("(//h2/a[contains(@title,'" + capitalizedBrandName + "')])[1]").click();
+                        setItemRating(item);
+                        saveBetterOffer(item);
+                    }
                 }
             }
         }
+    }
+
+    private boolean isItemNotFoundWarningDisplayed() {
+        boolean status = false;
+        try {
+            status = this.findElementByCssSelector(ITEM_NOT_FOUND_WARNING_CSS).isDisplayed();
+        } catch (NoSuchElementException e) {
+            System.out.println("Item not found ... on compari");
+        }
+        return status;
     }
 
     private void setItemRating(Item item) {

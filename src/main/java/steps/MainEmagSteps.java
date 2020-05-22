@@ -90,4 +90,10 @@ public class MainEmagSteps extends ScenarioSteps {
     public void applyLeftSidebarStockFilter() {
         mainEmagPage.pressStockFilter();
     }
+
+    @Step
+    public void displayMostItemsPerPage() {
+        mainEmagPage.clickItemsPerPageButton();
+        mainEmagPage.setMostItemsPerPage();
+    }
 }

@@ -43,6 +43,7 @@ public class MainTestClass extends BaseTestClass {
     public void test_2() {
         mainEmagSteps.applyLeftSidebarStockFilter();
         mainEmagSteps.applyLeftSidebarRatingFilter();
+        mainEmagSteps.displayMostItemsPerPage();
         mainEmagSteps.sortByNumberOfReviews();
         mainEmagSteps.collectInformation();
         mainEmagSteps.filterItemsBelowAverage();

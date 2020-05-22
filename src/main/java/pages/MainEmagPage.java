@@ -16,6 +16,7 @@ public class MainEmagPage extends BasePage {
     private static final String SEARCH_BUTTON_CSS = ".searchbox-submit-button";
     private static final String SEARCH_RESULTS_CARDS_CSS = ".card-item.js-product-data";
     private static final String FILTER_BUTTON_CSS = "div:nth-child(2) > div.sort-control-btn-dropdown.hidden-xs > button";
+    private static final String ITEM_PER_PAGE_BUTTON_CSS = "div > div.sort-control-item.arn-test.hidden-xs > div > button";
     private static final String NUMBER_OF_REVIEWS_CSS = "[data-sort-id='reviews']";
     private static final String ITEM_STAR_RATING_CSS = ".js-product-url .star-rating";
     private static final String ITEM_STAR_NUMBER_CSS = ".js-product-url .star-rating-text .hidden-xs";
@@ -27,6 +28,7 @@ public class MainEmagPage extends BasePage {
     private static final String PRELOADER_CSS = "#card_grid .preloader";
     private static final String RATING_FILTER_CSS = "[data-option-id='1-5']";
     private static final String STOCK_FILTER_CSS = "[data-name='In Stoc']";
+    private static final String MAX_ITEMS_PER_PAGE_CSS = "[data-results-per-page='100']";
 
     Input input = new Input();
 
@@ -144,42 +146,45 @@ public class MainEmagPage extends BasePage {
     }
 
     public void filterLowNumberItems() {
-        double sum = 0;
-        for (Item item : itemList) {
-            sum += item.getNumberOfReviews();
-        }
-
-        double average = sum / itemList.size();
-        System.out.println("MEDIA ESTE Number of ratings = " + average);
-
-        for (int i = 0; i < itemList.size(); i++) {
-            if (itemList.get(i).getNumberOfReviews() < average) {
-                itemList.remove(i);
-                i--;
+        if (itemList.size() > 10) {
+            double sum = 0;
+            for (Item item : itemList) {
+                sum += item.getNumberOfReviews();
             }
+
+            double average = sum / itemList.size();
+            System.out.println("MEDIA ESTE Number of ratings = " + average);
+
+            for (int i = 0; i < itemList.size(); i++) {
+                if (itemList.get(i).getNumberOfReviews() < average) {
+                    itemList.remove(i);
+                    i--;
+                }
+            }
+
+            System.out.println("DIMENSIUNE LISTA dupa nr filter: " + itemList.size());
         }
-
-        System.out.println("DIMENSIUNE LISTA dupa nr filter: " + itemList.size());
-
     }
 
     public void filterLowRatedItems() {
-        double sum = 0;
-        for (Item item : itemList) {
-            sum += item.getRating();
-        }
-
-        double average = sum / itemList.size();
-        System.out.println("MEDIA ESTE Ratings = " + average);
-
-        for (int i = 0; i < itemList.size(); i++) {
-            if (itemList.get(i).getRating() < average) {
-                itemList.remove(i);
-                i--;
+        if (itemList.size() > 10) {
+            double sum = 0;
+            for (Item item : itemList) {
+                sum += item.getRating();
             }
-        }
 
-        System.out.println("DIMENSIUNE LISTA dupa rating filter: " + itemList.size());
+            double average = sum / itemList.size();
+            System.out.println("MEDIA ESTE Ratings = " + average);
+
+            for (int i = 0; i < itemList.size(); i++) {
+                if (itemList.get(i).getRating() < average) {
+                    itemList.remove(i);
+                    i--;
+                }
+            }
+
+            System.out.println("DIMENSIUNE LISTA dupa rating filter: " + itemList.size());
+        }
     }
 
     public void filterOverPricedItems(double budget) {
@@ -243,6 +248,7 @@ public class MainEmagPage extends BasePage {
         top3List.add(itemList.get(0));
         temporaryList.remove(itemList.get(0));
         double reviewNumberAverage = calculateNumberOfRatingsAverage();
+        double ratingAverage = calculateRatingAverage();
         System.out.println("NO OF REVIEWS AVERAGE = " + reviewNumberAverage);
 
         if (itemList.size() > 1) {
@@ -267,13 +273,18 @@ public class MainEmagPage extends BasePage {
         if (itemList.size() > 2) {
             Item bestPrice = temporaryList.get(0);
             for (int i = 0; i < temporaryList.size(); i++) {
-                if (temporaryList.get(i).getPrice() < bestPrice.getPrice()) {
+                if (temporaryList.get(i).getPrice() < bestPrice.getPrice() &&
+                temporaryList.get(i).getRating() >= ratingAverage) {
                     bestPrice = temporaryList.get(i);
-                } else if (bestPrice.getPrice() == temporaryList.get(i).getPrice()) {
-                    if (bestPrice.getRating() < temporaryList.get(i).getRating()) {
+                } else if (bestPrice.getPrice() == temporaryList.get(i).getPrice() &&
+                        temporaryList.get(i).getRating() >= ratingAverage) {
+                    if (bestPrice.getRating() < temporaryList.get(i).getRating() &&
+                            temporaryList.get(i).getRating() >= ratingAverage) {
                         bestPrice = temporaryList.get(i);
-                    } else if (bestPrice.getRating() == temporaryList.get(i).getRating()) {
-                        if (bestPrice.getNumberOfReviews() > temporaryList.get(i).getNumberOfReviews()) {
+                    } else if (bestPrice.getRating() == temporaryList.get(i).getRating() &&
+                            temporaryList.get(i).getRating() >= ratingAverage) {
+                        if (bestPrice.getNumberOfReviews() > temporaryList.get(i).getNumberOfReviews() &&
+                                temporaryList.get(i).getRating() >= ratingAverage) {
                             bestPrice = temporaryList.get(i);
                         }
                     }
@@ -286,6 +297,14 @@ public class MainEmagPage extends BasePage {
 
         itemList.clear();
         itemList = top3List;
+    }
+
+    private double calculateRatingAverage() {
+        double sum = 0;
+        for (Item item : itemList) {
+            sum += item.getRating();
+        }
+        return sum / itemList.size();
     }
 
     private double calculateNumberOfRatingsAverage() {
@@ -319,6 +338,19 @@ public class MainEmagPage extends BasePage {
         Actions action = new Actions(getDriver());
         action.moveToElement(findElementByCssSelector(STOCK_FILTER_CSS)).build().perform();
         this.findElementByCssSelector(STOCK_FILTER_CSS).click();
+        this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
+        this.waitUntilElementIsInvisible((PRELOADER_CSS), 10);
+    }
+
+    public void clickItemsPerPageButton() {
+        WebElement element = this.findElementByCssSelector(ITEM_PER_PAGE_BUTTON_CSS);
+        Actions action = new Actions(this.getDriver());
+        action.moveToElement(element).build().perform();
+        element.click();
+    }
+
+    public void setMostItemsPerPage() {
+        this.findElementByCssSelector(MAX_ITEMS_PER_PAGE_CSS).click();
         this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
         this.waitUntilElementIsInvisible((PRELOADER_CSS), 10);
     }
