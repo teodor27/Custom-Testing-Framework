@@ -24,11 +24,22 @@ public class CompariPage extends BasePage {
                     setItemRating(item);
                     saveBetterOffer(item);
                 } else {
-                    System.out.println("Trying by first item found....");
-                    if (isFirstItemFoundByBrand(item.getBrand())) {
-                        String brandName = item.getBrand();
-                        String capitalizedBrandName = brandName.substring(0, 1).toUpperCase() + brandName.substring(1).toLowerCase();
-                        this.findElementByXpath("(//h2/a[contains(@title,'" + capitalizedBrandName + "')])[1]").click();
+                    System.out.println("Searching by description ....");
+                    String description = searchForItemByDescription(item);
+                    if (!isItemNotFoundWarningDisplayed()) {
+                        if (isItemFound(description)) {
+                            this.findElementByXpath("//a[contains(@title,'" + description + "')]").click();
+                            setItemRating(item);
+                            saveBetterOffer(item);
+                        }
+                    }
+                }
+            } else {
+                System.out.println("Searching by description ....");
+                String description = searchForItemByDescription(item);
+                if (!isItemNotFoundWarningDisplayed()) {
+                    if (isItemFound(description)) {
+                        this.findElementByXpath("//a[contains(@title,'" + description + "')]").click();
                         setItemRating(item);
                         saveBetterOffer(item);
                     }
@@ -70,15 +81,48 @@ public class CompariPage extends BasePage {
         this.sleep(800);
     }
 
+    private String searchForItemByDescription(Item item) {
+        this.sleep(800);
+        String name = item.getName();
+        String rawName = name.split(",")[0];
+        String[] rawNameArray = rawName.split(" ");
+        int brandIndex = 0;
+        for (int i = 0; i < rawNameArray.length; i++) {
+            if (rawNameArray[i].equalsIgnoreCase(item.getBrand())) {
+                brandIndex = i;
+                break;
+            }
+        }
+
+        StringBuilder searchString = new StringBuilder();
+        int counter = 0;
+        for (int i = brandIndex; i < rawNameArray.length; i++) {
+            searchString.append(rawNameArray[i]).append(" ");
+            counter++;
+        }
+        if (searchString.length() > 0) {
+            if (counter == 1) {
+                searchString.append(item.getProductCode());
+            }
+            System.out.println("Searching Compari.ro for: " + searchString);
+            WebElement searchBox = this.waitUntilPageIsLoadedById(SEARCH_BOX_ID);
+            searchBox.clear();
+            searchBox.sendKeys(searchString);
+            sleep(1000);
+            this.findElementByCssSelector(SEARCH_BUTTON_CSS).click();
+            this.sleep(800);
+        }
+        return String.valueOf(searchString);
+    }
+
     private void saveBetterOffer(Item item) {
         List<WebElement> top3OfferPriceElements = this.findElementsByCssSelector(TOP_OFFERED_PRICES_CSS);
-        System.out.println("lista preturi = " + top3OfferPriceElements.size());
         List<WebElement> top3OfferUrlElements = this.findElementsByXpath(TOP_OFFERED_URL_XPATH);
-        System.out.println("lista url-uri = " + top3OfferUrlElements.size());
         for (int i = 0; i < top3OfferPriceElements.size(); i++) {
             String rawPrice = top3OfferPriceElements.get(i).getAttribute("content");
             double compariPrice = Double.parseDouble(rawPrice);
-            if (item.getPrice() > compariPrice) {
+            double priceMargin = item.getPrice() - item.getPrice() * 0.2;
+            if (item.getPrice() > compariPrice && compariPrice >= priceMargin) {
                 System.out.println("Setting new price and URL... for " + item.getBrand() + " " + item.getProductCode());
                 System.out.println("Old price = " + item.getPrice());
                 item.setPrice(compariPrice);
@@ -91,21 +135,10 @@ public class CompariPage extends BasePage {
         }
     }
 
-    private boolean isFirstItemFoundByBrand(String brand) {
-        String capitalized = brand.substring(0, 1).toUpperCase() + brand.substring(1).toLowerCase();
+    private boolean isItemFound(String description) {
         boolean status = false;
         try {
-            status = this.findElementByXpath("(//h2/a[contains(@title,'" + capitalized + "')])[1]").isDisplayed();
-        } catch (NoSuchElementException e) {
-            System.out.println("FIRST Item not found on compari");
-        }
-        return status;
-    }
-
-    private boolean isItemFound(String productCode) {
-        boolean status = false;
-        try {
-            status = this.findElementByXpath("//a[contains(@title,'" + productCode + "')]").isDisplayed();
+            status = this.findElementByXpath("//a[contains(@title,'" + description + "')]").isDisplayed();
         } catch (NoSuchElementException e) {
             System.out.println("Item not found on compari");
         }

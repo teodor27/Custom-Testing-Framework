@@ -29,9 +29,14 @@ public class MainEmagSteps extends ScenarioSteps {
     }
 
     @Step
-    public void sortByNumberOfReviews() {
+    public void sortByNewOrMostPopularItems() {
         mainEmagPage.clickSortButton();
-        mainEmagPage.sortByNumberOfReviews();
+        if (mainEmagPage.isNewestItemFilterDisplayed()) {
+            mainEmagPage.sortByNewestItem();
+        } else if (!mainEmagPage.isPopularFilterSelected()) {
+            mainEmagPage.clickSortButton();
+            mainEmagPage.sortByNumberOfReviews();
+        }
     }
 
     @Step

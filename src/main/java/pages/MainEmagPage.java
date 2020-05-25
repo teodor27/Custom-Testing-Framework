@@ -16,8 +16,10 @@ public class MainEmagPage extends BasePage {
     private static final String SEARCH_BUTTON_CSS = ".searchbox-submit-button";
     private static final String SEARCH_RESULTS_CARDS_CSS = ".card-item.js-product-data";
     private static final String FILTER_BUTTON_CSS = "div:nth-child(2) > div.sort-control-btn-dropdown.hidden-xs > button";
+    private static final String FILTER_BUTTON_TEXT_CSS = "div:nth-child(2) > div.sort-control-btn-dropdown.hidden-xs > button .text-truncate";
     private static final String ITEM_PER_PAGE_BUTTON_CSS = "div > div.sort-control-item.arn-test.hidden-xs > div > button";
-    private static final String NUMBER_OF_REVIEWS_CSS = "[data-sort-id='reviews']";
+    private static final String MOST_POPULAR_CSS = "[data-sort-id='popularity']";
+    private static final String NEWEST_CSS = "[data-sort-id='id']";
     private static final String ITEM_STAR_RATING_CSS = ".js-product-url .star-rating";
     private static final String ITEM_STAR_NUMBER_CSS = ".js-product-url .star-rating-text .hidden-xs";
     private static final String ITEM_TITLE_CSS = ".product-title-zone a";
@@ -25,12 +27,15 @@ public class MainEmagPage extends BasePage {
     private static final String NEXT_PAGE_BUTTON_XPATH = "//span[text()='Pagina urmatoare']";
     private static final String COOKIE_PROMPT_CSS = ".js-later";
     private static final String SEO_PAGE_BODY_ID = "#seo-links-body";
-    private static final String PRELOADER_CSS = "#card_grid .preloader";
+    private static final String PRE_LOADER_CSS = "#card_grid .preloader";
     private static final String RATING_FILTER_CSS = "[data-option-id='1-5']";
     private static final String STOCK_FILTER_CSS = "[data-name='In Stoc']";
     private static final String MAX_ITEMS_PER_PAGE_CSS = "[data-results-per-page='100']";
 
     Input input = new Input();
+
+    double averageNumberOfReviews;
+    double averageRating;
 
 
     public void clickSearchBox() {
@@ -63,9 +68,9 @@ public class MainEmagPage extends BasePage {
     }
 
     public void sortByNumberOfReviews() {
-        this.findElementByCssSelector(NUMBER_OF_REVIEWS_CSS).click();
-        this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
-        this.waitUntilElementIsInvisible((PRELOADER_CSS), 10);
+        this.findElementByCssSelector(MOST_POPULAR_CSS).click();
+        this.waitUntilPageIsLoadedByCss(PRE_LOADER_CSS);
+        this.waitUntilElementIsInvisible((PRE_LOADER_CSS), 10);
 
     }
 
@@ -94,8 +99,8 @@ public class MainEmagPage extends BasePage {
         Actions action = new Actions(this.getDriver());
         action.moveToElement(element).build().perform();
         this.findElementByXpath(NEXT_PAGE_BUTTON_XPATH).click();
-        this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
-        this.waitUntilElementIsInvisible((PRELOADER_CSS), 10);
+        this.waitUntilPageIsLoadedByCss(PRE_LOADER_CSS);
+        this.waitUntilElementIsInvisible((PRE_LOADER_CSS), 20);
     }
 
     public void collectInformation() {
@@ -146,15 +151,9 @@ public class MainEmagPage extends BasePage {
     }
 
     public void filterLowNumberItems() {
-        if (itemList.size() > 10) {
-            double sum = 0;
-            for (Item item : itemList) {
-                sum += item.getNumberOfReviews();
-            }
-
-            double average = sum / itemList.size();
-            System.out.println("MEDIA ESTE Number of ratings = " + average);
-
+        double average = averageNumberOfReviews;
+        System.out.println("Average Number of ratings = " + average);
+        if (itemList.size() > 10)
             for (int i = 0; i < itemList.size(); i++) {
                 if (itemList.get(i).getNumberOfReviews() < average) {
                     itemList.remove(i);
@@ -162,20 +161,13 @@ public class MainEmagPage extends BasePage {
                 }
             }
 
-            System.out.println("DIMENSIUNE LISTA dupa nr filter: " + itemList.size());
-        }
+        System.out.println("DIMENSIUNE LISTA dupa nr filter: " + itemList.size());
     }
 
     public void filterLowRatedItems() {
-        if (itemList.size() > 10) {
-            double sum = 0;
-            for (Item item : itemList) {
-                sum += item.getRating();
-            }
-
-            double average = sum / itemList.size();
-            System.out.println("MEDIA ESTE Ratings = " + average);
-
+        double average = averageRating;
+        System.out.println("Average Ratings = " + average);
+        if (itemList.size() > 10)
             for (int i = 0; i < itemList.size(); i++) {
                 if (itemList.get(i).getRating() < average) {
                     itemList.remove(i);
@@ -183,18 +175,22 @@ public class MainEmagPage extends BasePage {
                 }
             }
 
-            System.out.println("DIMENSIUNE LISTA dupa rating filter: " + itemList.size());
-        }
+        System.out.println("DIMENSIUNE LISTA dupa rating filter: " + itemList.size());
     }
 
+
     public void filterOverPricedItems(double budget) {
+        averageNumberOfReviews = calculateNumberOfRatingsAverage();
+        averageRating = calculateRatingAverage();
         System.out.println("Buget = " + budget);
         int priceDeviationPercentage = 15;
-        double referencePrice = budget + (priceDeviationPercentage * budget) / 100;
-        System.out.println("PRICE MARGIN = " + referencePrice);
+        double referenceMaxPrice = budget + (priceDeviationPercentage * budget) / 100;
+        double referenceMinPrice = budget - (priceDeviationPercentage * budget) / 100;
+        System.out.println("PRICE RANGE = " + referenceMaxPrice + " - " + referenceMinPrice);
 
         for (int i = 0; i < itemList.size(); i++) {
-            if (itemList.get(i).getPrice() > referencePrice) {
+            if (itemList.get(i).getPrice() > referenceMaxPrice ||
+                    itemList.get(i).getPrice() <= referenceMinPrice) {
                 itemList.remove(i);
                 i--;
             }
@@ -204,13 +200,15 @@ public class MainEmagPage extends BasePage {
     }
 
     public void filterDuplicateItems() {
-        for (int i = 0; i < itemList.size() - 1; i++) {
-            if (itemList.get(i).getNumberOfReviews() == itemList.get(i + 1).getNumberOfReviews() &&
-                    itemList.get(i).getRating() == itemList.get(i + 1).getRating() &&
-                    itemList.get(i).getName().contains(itemList.get(i + 1).getName().split(",")[0])) {
-                System.out.println("Duplicate found .... " + itemList.get(i).toString());
-                itemList.remove(i);
-                i = 0;
+
+        for (int i = 0; i < itemList.size(); i++) {
+            for (int j = 0; j < itemList.size(); j++) {
+                if ((!itemList.get(i).getName().equalsIgnoreCase(itemList.get(j).getName())) &&
+                        itemList.get(i).getNumberOfReviews() == itemList.get(j).getNumberOfReviews() &&
+                        itemList.get(i).getRating() == itemList.get(j).getRating() &&
+                        itemList.get(i).getName().contains(itemList.get(j).getName().split(",")[0])) {
+                    System.out.println("Removing duplicate ...." + itemList.remove(j).toString());
+                }
             }
         }
         System.out.println("LIST AFTER DUPLICATE FILTER: " + itemList.size());
@@ -220,8 +218,8 @@ public class MainEmagPage extends BasePage {
         Actions action = new Actions(getDriver());
         action.moveToElement(findElementByCssSelector(RATING_FILTER_CSS)).build().perform();
         this.findElementByCssSelector(RATING_FILTER_CSS).click();
-        this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
-        this.waitUntilElementIsInvisible((PRELOADER_CSS), 10);
+        this.waitUntilPageIsLoadedByCss(PRE_LOADER_CSS);
+        this.waitUntilElementIsInvisible((PRE_LOADER_CSS), 10);
     }
 
     public void reduceBestProductList() {
@@ -243,60 +241,47 @@ public class MainEmagPage extends BasePage {
     }
 
     public void reduceToBestProducts() {
-        List<Item> temporaryList = itemList;
-        List<Item> top3List = new ArrayList<>();
-        top3List.add(itemList.get(0));
-        temporaryList.remove(itemList.get(0));
-        double reviewNumberAverage = calculateNumberOfRatingsAverage();
-        double ratingAverage = calculateRatingAverage();
-        System.out.println("NO OF REVIEWS AVERAGE = " + reviewNumberAverage);
+        if (itemList.size() > 3) {
+            List<Item> top3List = new ArrayList<>();
+            top3List.add(itemList.get(0));
+            itemList.remove(0);
 
-        if (itemList.size() > 1) {
-            Item maxRating = temporaryList.get(0);
-            for (int i = 0; i < temporaryList.size(); i++) {
-                if (temporaryList.get(i).getRating() > maxRating.getRating()) {
-                    maxRating = temporaryList.get(i);
-                } else if (maxRating.getRating() == temporaryList.get(i).getRating()) {
-                    if (maxRating.getNumberOfReviews() < temporaryList.get(i).getNumberOfReviews()) {
-                        maxRating = temporaryList.get(i);
-                    } else if (maxRating.getNumberOfReviews() == temporaryList.get(i).getNumberOfReviews()) {
-                        if (maxRating.getPrice() > temporaryList.get(i).getPrice()) {
-                            maxRating = temporaryList.get(i);
+            Item maxNumberOfReviews = itemList.get(0);
+            for (int i = 0; i < itemList.size(); i++) {
+                if (itemList.get(i).getNumberOfReviews() > maxNumberOfReviews.getNumberOfReviews()) {
+                    maxNumberOfReviews = itemList.get(i);
+                } else if (maxNumberOfReviews.getNumberOfReviews() == itemList.get(i).getNumberOfReviews()) {
+                    if (maxNumberOfReviews.getRating() < itemList.get(i).getRating()) {
+                        maxNumberOfReviews = itemList.get(i);
+                    } else if (maxNumberOfReviews.getRating() == itemList.get(i).getRating()) {
+                        if (maxNumberOfReviews.getPrice() > itemList.get(i).getPrice()) {
+                            maxNumberOfReviews = itemList.get(i);
                         }
                     }
                 }
             }
-            temporaryList.remove(maxRating);
-            top3List.add(maxRating);
-        }
+            top3List.add(maxNumberOfReviews);
+            itemList.remove(maxNumberOfReviews);
 
-        if (itemList.size() > 2) {
-            Item bestPrice = temporaryList.get(0);
-            for (int i = 0; i < temporaryList.size(); i++) {
-                if (temporaryList.get(i).getPrice() < bestPrice.getPrice() &&
-                temporaryList.get(i).getRating() >= ratingAverage) {
-                    bestPrice = temporaryList.get(i);
-                } else if (bestPrice.getPrice() == temporaryList.get(i).getPrice() &&
-                        temporaryList.get(i).getRating() >= ratingAverage) {
-                    if (bestPrice.getRating() < temporaryList.get(i).getRating() &&
-                            temporaryList.get(i).getRating() >= ratingAverage) {
-                        bestPrice = temporaryList.get(i);
-                    } else if (bestPrice.getRating() == temporaryList.get(i).getRating() &&
-                            temporaryList.get(i).getRating() >= ratingAverage) {
-                        if (bestPrice.getNumberOfReviews() > temporaryList.get(i).getNumberOfReviews() &&
-                                temporaryList.get(i).getRating() >= ratingAverage) {
-                            bestPrice = temporaryList.get(i);
+            Item bestRating = itemList.get(0);
+            for (int i = 0; i < itemList.size(); i++) {
+                if (itemList.get(i).getRating() > bestRating.getRating()) {
+                    bestRating = itemList.get(i);
+                } else if (bestRating.getRating() == itemList.get(i).getRating()) {
+                    if (bestRating.getNumberOfReviews() < itemList.get(i).getNumberOfReviews()) {
+                        bestRating = itemList.get(i);
+                    } else if (bestRating.getNumberOfReviews() == itemList.get(i).getNumberOfReviews()) {
+                        if (bestRating.getPrice() > itemList.get(i).getPrice()) {
+                            bestRating = itemList.get(i);
                         }
                     }
                 }
             }
+            top3List.add(bestRating);
 
-            temporaryList.remove(bestPrice);
-            top3List.add(bestPrice);
+            itemList.clear();
+            itemList = top3List;
         }
-
-        itemList.clear();
-        itemList = top3List;
     }
 
     private double calculateRatingAverage() {
@@ -338,8 +323,8 @@ public class MainEmagPage extends BasePage {
         Actions action = new Actions(getDriver());
         action.moveToElement(findElementByCssSelector(STOCK_FILTER_CSS)).build().perform();
         this.findElementByCssSelector(STOCK_FILTER_CSS).click();
-        this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
-        this.waitUntilElementIsInvisible((PRELOADER_CSS), 10);
+        this.waitUntilPageIsLoadedByCss(PRE_LOADER_CSS);
+        this.waitUntilElementIsInvisible((PRE_LOADER_CSS), 10);
     }
 
     public void clickItemsPerPageButton() {
@@ -351,7 +336,27 @@ public class MainEmagPage extends BasePage {
 
     public void setMostItemsPerPage() {
         this.findElementByCssSelector(MAX_ITEMS_PER_PAGE_CSS).click();
-        this.waitUntilPageIsLoadedByCss(PRELOADER_CSS);
-        this.waitUntilElementIsInvisible((PRELOADER_CSS), 10);
+        this.waitUntilPageIsLoadedByCss(PRE_LOADER_CSS);
+        this.waitUntilElementIsInvisible((PRE_LOADER_CSS), 10);
+    }
+
+    public boolean isPopularFilterSelected() {
+        return this.findElementByCssSelector(FILTER_BUTTON_TEXT_CSS).getText().contentEquals("Cele mai populare");
+    }
+
+    public boolean isNewestItemFilterDisplayed() {
+        boolean status = false;
+        try {
+            status = this.findElementByCssSelector(NEWEST_CSS).isDisplayed();
+        } catch (NoSuchElementException e) {
+            System.out.println("Newer Filter not available ...");
+        }
+        return status;
+    }
+
+    public void sortByNewestItem() {
+        this.findElementByCssSelector(NEWEST_CSS).click();
+        this.waitUntilPageIsLoadedByCss(PRE_LOADER_CSS);
+        this.waitUntilElementIsInvisible((PRE_LOADER_CSS), 10);
     }
 }

@@ -5,7 +5,7 @@ import model.Item;
 public class EmagProductPage extends BasePage {
 
     private static final String PRODUCT_CODE_CSS = ".product-code-display";
-    private static final String BRAND_CSS = ".disclaimer-section a";
+    private static final String BRAND_CSS = ".disclaimer-section p > a";
 
 
     public void collectProductInfo() {

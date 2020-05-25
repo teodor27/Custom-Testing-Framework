@@ -44,10 +44,10 @@ public class MainTestClass extends BaseTestClass {
         mainEmagSteps.applyLeftSidebarStockFilter();
         mainEmagSteps.applyLeftSidebarRatingFilter();
         mainEmagSteps.displayMostItemsPerPage();
-        mainEmagSteps.sortByNumberOfReviews();
+        mainEmagSteps.sortByNewOrMostPopularItems();
         mainEmagSteps.collectInformation();
-        mainEmagSteps.filterItemsBelowAverage();
         mainEmagSteps.filterByBudget();
+        mainEmagSteps.filterItemsBelowAverage();
         mainEmagSteps.narrowDownBestProducts();
         emagProductSteps.collectProductInformation();
         baseSteps.closeTab();
