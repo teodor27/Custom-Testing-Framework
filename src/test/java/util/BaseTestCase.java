@@ -6,7 +6,7 @@ import net.thucydides.core.steps.ScenarioSteps;
 import org.junit.Before;
 import org.openqa.selenium.WebDriver;
 
-public class BaseTestClass extends ScenarioSteps {
+public class BaseTestCase extends ScenarioSteps {
 
     @Managed(driver = "chrome", uniqueSession = true)
     protected WebDriver webDriver;
