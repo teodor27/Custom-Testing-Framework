@@ -4,7 +4,6 @@ import model.Item;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
-import util.Input;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,6 @@ public class MainEmagPage extends BasePage {
     private static final String STOCK_FILTER_CSS = "[data-name='In Stoc']";
     private static final String MAX_ITEMS_PER_PAGE_CSS = "[data-results-per-page='100']";
 
-    Input input = new Input();
 
     double averageNumberOfReviews;
     double averageRating;

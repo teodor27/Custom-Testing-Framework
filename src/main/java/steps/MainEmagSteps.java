@@ -1,15 +1,12 @@
 package steps;
 
 import net.thucydides.core.annotations.Step;
-import net.thucydides.core.steps.ScenarioSteps;
 import pages.MainEmagPage;
-import util.Input;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MainEmagSteps extends ScenarioSteps {
+public class MainEmagSteps extends BaseSteps {
     MainEmagPage mainEmagPage;
-    Input input = new Input();
 
     @Step()
     public void selectSearchBox() {

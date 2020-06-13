@@ -1,13 +1,10 @@
 package steps;
 
 import net.thucydides.core.annotations.Step;
-import net.thucydides.core.steps.ScenarioSteps;
 import pages.CompariPage;
-import util.Input;
 
-public class CompariSteps extends ScenarioSteps {
+public class CompariSteps extends BaseSteps {
     CompariPage compariPage;
-    Input input = new Input();
 
     @Step
     public void openNewCompariTab() {

@@ -1,13 +1,10 @@
 package steps;
 
 import net.thucydides.core.annotations.Step;
-import net.thucydides.core.steps.ScenarioSteps;
 import pages.PriceRunnerPage;
-import util.Input;
 
-public class PriceRunnerSteps extends ScenarioSteps {
+public class PriceRunnerSteps extends BaseSteps {
     PriceRunnerPage priceRunnerPage;
-    Input input = new Input();
 
     @Step
     public void openNewPriceRunnerTab() {
