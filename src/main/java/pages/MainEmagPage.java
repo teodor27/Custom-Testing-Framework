@@ -1,6 +1,7 @@
 package pages;
 
 import model.Item;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -16,7 +17,7 @@ public class MainEmagPage extends BasePage {
     private static final String SEARCH_RESULTS_CARDS_CSS = ".card-item.js-product-data";
     private static final String FILTER_BUTTON_CSS = "div:nth-child(2) > div.sort-control-btn-dropdown.hidden-xs > button";
     private static final String FILTER_BUTTON_TEXT_CSS = "div:nth-child(2) > div.sort-control-btn-dropdown.hidden-xs > button .text-truncate";
-    private static final String ITEM_PER_PAGE_BUTTON_CSS = "div > div.sort-control-item.arn-test.hidden-xs > div > button";
+    private static final String ITEM_PER_PAGE_BUTTON_CSS = "div.sort-control-item.arn-test.hidden-xs > div > button";
     private static final String MOST_POPULAR_CSS = "[data-sort-id='popularity']";
     private static final String NEWEST_CSS = "[data-sort-id='id']";
     private static final String ITEM_STAR_RATING_CSS = ".js-product-url .star-rating";
@@ -59,10 +60,7 @@ public class MainEmagPage extends BasePage {
     }
 
     public void clickSortButton() {
-        WebElement element = this.findElementByCssSelector(FILTER_BUTTON_CSS);
-        Actions action = new Actions(this.getDriver());
-        action.moveToElement(element).build().perform();
-        element.click();
+        this.findElementByCssSelector(FILTER_BUTTON_CSS).click();
     }
 
     public void sortByNumberOfReviews() {
@@ -73,7 +71,7 @@ public class MainEmagPage extends BasePage {
     }
 
     public void closeCookiePrompt() {
-        WebElement laterButton = this.shortWaitUntilPageIsLoadedByIdAndClickable(COOKIE_PROMPT_CSS);
+        WebElement laterButton = this.shortWaitUntilPageIsLoadedByCssAndClickable(COOKIE_PROMPT_CSS);
 
         Actions action = new Actions(this.getDriver());
         action.doubleClick(laterButton).build().perform();
@@ -326,10 +324,9 @@ public class MainEmagPage extends BasePage {
     }
 
     public void clickItemsPerPageButton() {
-        WebElement element = this.findElementByCssSelector(ITEM_PER_PAGE_BUTTON_CSS);
-        Actions action = new Actions(this.getDriver());
-        action.moveToElement(element).build().perform();
-        element.click();
+        JavascriptExecutor js = (JavascriptExecutor) getDriver();
+        js.executeScript("window.scrollBy(0,-3000)");
+        this.findElementByCssSelector(ITEM_PER_PAGE_BUTTON_CSS).click();
     }
 
     public void setMostItemsPerPage() {

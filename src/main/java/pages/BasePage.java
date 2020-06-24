@@ -78,7 +78,7 @@ public class BasePage extends PageObject {
         wait.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector(css)));
     }
 
-    protected WebElement shortWaitUntilPageIsLoadedByIdAndClickable(String css) {
+    protected WebElement shortWaitUntilPageIsLoadedByCssAndClickable(String css) {
         return waitUntilPageIsLoadedByElementAndClickable(By.cssSelector(css), 20, 400);
 
     }
