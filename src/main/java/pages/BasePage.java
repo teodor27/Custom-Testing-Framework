@@ -74,7 +74,7 @@ public class BasePage extends PageObject {
     }
 
     public void waitUntilElementIsInvisible(String css, int specifiedTimeout) {
-        FluentWait wait = globalFluentWait(5, 20);
+        FluentWait wait = globalFluentWait(10, 20);
         wait.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector(css)));
     }
 
