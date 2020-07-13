@@ -59,6 +59,8 @@ public class CompariPage extends BasePage {
     }
 
     private void setItemRating(Item item) {
+        if (!this.findElementByCssSelector("#tab-menu > li:nth-child(1)").getClass().equals("active"))
+            this.findElementByCssSelector("#tab-menu > li:nth-child(1)").click();
         this.waitUntilPageIsLoadedByCss(RATING_CSS);
         String ratingText = this.findElementByCssSelector(RATING_CSS).getAttribute("title");
         System.out.println("Star rating ELEMENT FOUND = " + ratingText);

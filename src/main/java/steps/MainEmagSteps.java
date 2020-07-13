@@ -95,7 +95,9 @@ public class MainEmagSteps extends BaseSteps {
 
     @Step
     public void displayMostItemsPerPage() {
-        mainEmagPage.clickItemsPerPageButton();
-        mainEmagPage.setMostItemsPerPage();
+        if(mainEmagPage.isItemsPerPageButtonDisplayed()) {
+            mainEmagPage.clickItemsPerPageButton();
+            mainEmagPage.setMostItemsPerPage();
+        }
     }
 }

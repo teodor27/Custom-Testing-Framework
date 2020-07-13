@@ -354,4 +354,14 @@ public class MainEmagPage extends BasePage {
         this.waitUntilPageIsLoadedByCss(PRE_LOADER_CSS);
         this.waitUntilElementIsInvisible((PRE_LOADER_CSS), 10);
     }
+
+    public boolean isItemsPerPageButtonDisplayed() {
+        boolean status = false;
+        try {
+            status = this.findElementByCssSelector(ITEM_PER_PAGE_BUTTON_CSS).isDisplayed();
+        } catch (NoSuchElementException e) {
+            System.out.println("Items per page button not displayed");
+        }
+        return status;
+    }
 }
